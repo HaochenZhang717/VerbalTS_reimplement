@@ -71,6 +71,8 @@ class ConditionalGenerator(nn.Module):
             t = torch.randint(0, self.generator.num_steps, [B], device=self.device)
             if "text" in self.cond_configs["cond_modal"] and "diffstep" in self.cond_configs["text"]["text_projector"]:
                 attr_emb = self.cond_projector(attr_emb_raw, t)
+
+            breakpoint()
             loss = self.generator._noise_estimation_loss(x, tp, attr_emb, t)
             return loss
         
