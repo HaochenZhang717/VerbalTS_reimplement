@@ -6,7 +6,7 @@ python run.py \
     --model_cond_config_path configs/synth-m/cond/text_msmdiffmv.yaml \
     --train_config_path configs/synth-m/train.yaml \
     --evaluate_config_path configs/synth-m/evaluate.yaml \
-    --data_folder /playpen/haochenz/synth_m \
+    --data_folder /playpen/haochenz/synthetic_m \
     --clip_folder /playpen/haochenz/long_clip \
     --multipatch_num 3 \
     --L_patch_len 3 \
