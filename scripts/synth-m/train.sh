@@ -13,4 +13,4 @@ python run.py \
     --base_patch 4 \
     --epochs 700 \
     --batch_size 512 \
-    --clip_cache_path ./cache/synth-m
+    --clip_cache_path /playpen/haochenz/long_clip
