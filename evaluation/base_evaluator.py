@@ -146,6 +146,7 @@ class BaseEvaluator:
                 cap_tokens = batch["cap"]
                 cap_emb = self.clip.get_text_coemb(cap_tokens, None)
 
+                breakpoint()
                 if "clip_config_path" in self.configs.keys():
                     ts_gen_emb = self.clip.get_ts_coemb(pred, ts_len)
                     all_tsgen_emb.append(ts_gen_emb)
