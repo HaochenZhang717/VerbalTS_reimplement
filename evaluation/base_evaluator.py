@@ -147,7 +147,7 @@ class BaseEvaluator:
                 # cap_tokens = batch["cap"]
                 # cap_emb = self.clip.get_text_coemb(cap_tokens, None)
 
-                breakpoint()
+
                 if "clip_config_path" in self.configs.keys():
                     ts = batch["ts"].to(self.model.device).float()
                     ts_len = batch["ts_len"].to(self.model.device).int()
@@ -197,4 +197,9 @@ class BaseEvaluator:
             print("JFTSD: ", jftsd)
             print("CTTP ", cttp)
 
+        fid = calculate_frechet_distance(self.ts_mean, self.ts_cov, tsgen_mean, tsgen_var)
+        print("FID: ", fid)
+        jftsd = calculate_frechet_distance(self.joint_mean, self.joint_cov, joint_mean, joint_var)
+        print("JFTSD: ", jftsd)
+        breakpoint()
         return res_dict
