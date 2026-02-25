@@ -1,4 +1,4 @@
-python run.py \
+CUDA_VISIBLE_DEVICES=5 python run.py \
     --cond_modal simple_text \
     --training_stage finetune \
     --save_folder ./save/synth-m/text2ts_msmdiffmv \
