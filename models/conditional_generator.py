@@ -122,6 +122,7 @@ class ConditionalGenerator(nn.Module):
         if self.cond_configs["cond_modal"] == "attr" or "diffstep" not in self.cond_configs["text"]["text_projector"]:
             attr_emb = self.cond_projector(attr_emb_raw)
 
+
         samples = []
         B = ts.shape[0]
         for i in range(n_samples):
@@ -131,6 +132,10 @@ class ConditionalGenerator(nn.Module):
                 t = (torch.ones(B, device=self.device) * t).long()
                 if "text" in self.cond_configs["cond_modal"] and "diffstep" in self.cond_configs["text"]["text_projector"]:
                     attr_emb = self.cond_projector(attr_emb_raw, t)
+
+                print(f"attr_emb shape {attr_emb.shape}")
+                print(f"attr_emb_raw shape {attr_emb_raw.shape}")
+                breakpoint()
                 pred_noise, _ = self.generator.predict_noise(x, tp, attr_emb, t)
                 if sampler == "ddpm":
                     x = self.generator.ddpm.reverse(x, pred_noise, t, noise)
