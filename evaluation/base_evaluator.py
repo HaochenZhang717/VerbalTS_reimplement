@@ -142,14 +142,19 @@ class BaseEvaluator:
                 pred = multi_preds.median(dim=0).values
 
                 # ts = batch["ts"].to(self.model.device).float()
-                ts_len = batch["ts_len"].to(self.model.device).int()
+                # ts_len = batch["ts_len"].to(self.model.device).int()
                 # ts_gt_emb = self.clip.get_ts_coemb(ts, ts_len)
-                cap_tokens = batch["cap"]
-                breakpoint()
+                # cap_tokens = batch["cap"]
                 # cap_emb = self.clip.get_text_coemb(cap_tokens, None)
 
                 breakpoint()
                 if "clip_config_path" in self.configs.keys():
+                    ts = batch["ts"].to(self.model.device).float()
+                    ts_len = batch["ts_len"].to(self.model.device).int()
+                    ts_gt_emb = self.clip.get_ts_coemb(ts, ts_len)
+                    cap_tokens = batch["cap"]
+                    cap_emb = self.clip.get_text_coemb(cap_tokens, None)
+
                     ts_gen_emb = self.clip.get_ts_coemb(pred, ts_len)
                     all_tsgen_emb.append(ts_gen_emb)
                     all_joint_emb.append(torch.cat([ts_gen_emb,cap_emb], dim=-1))
