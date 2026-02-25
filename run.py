@@ -74,7 +74,7 @@ def _evaluate_cond_gen(evaluator, sampler="ddim", n_sample=10):
     evaluator.n_samples = n_sample
     res_dict, result_ts_dict = evaluator.evaluate(mode="cond_gen", sampler=sampler, save_pred=False)
     for k, v in result_ts_dict.items():
-        if isinstance(v, torch.tensor):
+        if isinstance(v, torch.Tensor):
             print(k)
             print(v.shape)
             print("-" * 50)
