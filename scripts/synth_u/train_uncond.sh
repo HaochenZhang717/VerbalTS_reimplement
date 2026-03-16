@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=5 python run.py \
+CUDA_VISIBLE_DEVICES=1 python run.py \
     --cond_modal text \
     --training_stage pretrain \
     --save_folder ./verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv \
