@@ -6,11 +6,11 @@ CUDA_VISIBLE_DEVICES=5 python run.py \
     --model_cond_config_path configs/synth_u/cond/text_msmdiffmv.yaml \
     --train_config_path configs/synth_u/train.yaml \
     --evaluate_config_path configs/synth_u/evaluate.yaml \
-    --data_folder /playpen/haochenz/synthetic_u \
+    --data_folder /playpen/haochenz/LitsDatasets/128_len_ts/synthetic_u \
     --clip_folder "" \
     --multipatch_num 3 \
-    --L_patch_len 3 \
+    --L_patch_len 2 \
     --base_patch 4 \
-    --epochs 700 \
+    --epochs 2500 \
     --batch_size 512 \
     --clip_cache_path ""
