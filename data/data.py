@@ -67,41 +67,46 @@ class MyDataset:
     """
 
     def __init__(
-            self,
-            ts_path,
-            caps_path,
-            seq_len,
-            num_channels,
-            num_segments=4,
-            **kwargs
+        self,
+        ts_path,
+        caps_path,
+        text_embed_path,
+        seq_len,
+        num_channels,
+        num_segments,
+        **kwargs
     ):
         self.ts_path = ts_path
         self.caps_path = caps_path
         self.seq_len = seq_len
+        self.text_embed_path = text_embed_path
         self.num_segments = num_segments
         self.num_channels = num_channels
 
         self.attr_n_ops = None
 
-    def get_split(self, split, *args):
+    def get_split(self, split, text_type=None, *args):
         return MySplit(
             ts_path=self.ts_path,
             caps_path=self.caps_path,
             seq_len=self.seq_len,
+            text_embed_path=self.text_embed_path,
             num_channels=self.num_channels,
             num_segments=self.num_segments,
             split=split,
         )
 
+
 class MySplit(Dataset):
     def __init__(
-            self,
-            ts_path,
-            caps_path,
-            seq_len,
-            num_channels,
-            num_segments=4,
-            split="train",
+        self,
+        ts_path,
+        caps_path,
+        text_embed_path,
+        seq_len,
+        num_channels,
+        num_segments,
+        split="train",
     ):
         super().__init__()
 
@@ -114,31 +119,39 @@ class MySplit(Dataset):
         # load data
         # ------------------------
         self.ts = None
+        self.moment_embed = None
         if ts_path != "none":
             self.ts = np.load(f"{ts_path}/{split}_ts.npy", allow_pickle=True)  # (N,T,C)
+            self.moment_embed = np.load(f"{ts_path}/{split}_moment_embeds.npy", allow_pickle=True)
             self.N, self.T, self.C = self.ts.shape
         else:
             self.N = -1
             self.T = seq_len
             self.C = num_channels
 
+        if not text_embed_path.endswith('.pt'):
+            self.text_embed = torch.load(f"{text_embed_path}/{split}_embeds.pt", map_location="cpu")
+        else:
+            self.text_embed = torch.load(text_embed_path, map_location="cpu")
 
-
-        caps_dict = {}
-        with open(f"{self.caps_path}/{split}_caps_ready.jsonl", "r") as f:
-            for line in f:
-                item = json.loads(line)
-                caps_dict[item["id"]] = item["captions"]
-        self.caps = caps_dict
+        self.caps = None
+        if self.caps_path != "none":
+            caps_dict = {}
+            with open(f"{self.caps_path}/{split}_caps_ready.jsonl", "r") as f:
+                for line in f:
+                    item = json.loads(line)
+                    caps_dict[item["id"]] = item["captions"]
+            self.caps = caps_dict
 
         assert self.T % self.num_segments == 0
 
         self.segment_length = self.T // self.num_segments
 
         self.ids = sorted(
-            self.caps.keys(),
+            self.text_embed.keys(),
             key=lambda x: int(x.replace("image", "")),
         )
+
         self.block_ids = list(range(self.num_segments))
         self.num_block_choices = len(self.block_ids)
 
@@ -165,14 +178,30 @@ class MySplit(Dataset):
 
         else:
             caps = "caps not loaded."
+        # ------------------------
+        # text embedding
+        # ------------------------
 
+        text_embed_all_segments = []
+        for target_block in self.block_ids:
+            channel_embeds = []
+            for c in range(self.C):
+                key = f"seg{target_block+1}_channel{c}"
+                emb = self.text_embed[image_id][key]
+                channel_embeds.append(emb)
+            text_embed = torch.stack(channel_embeds, dim=0)  # (C,D)
+            text_embed_all_segments.append(text_embed)
+        text_embed_all_segments = torch.stack(text_embed_all_segments, dim=0) # (num_segments,C,D)
 
         item = {
             "ts": ts,
             "ts_len": self.T,
+            "text_embedding_all_segments": text_embed_all_segments,
             "image_id": image_id,
             "ts_id": ts_id,
+            "moment_embed": torch.from_numpy(self.moment_embed[idx]).float() if self.moment_embed is not None else None,
             "caps": caps,
+            # 'attn_mask': build_block_causal_mask(self.T, text_embed_all_segments.shape[0])
         }
 
         return item
@@ -182,8 +211,11 @@ class MySplit(Dataset):
         out = {}
         out["ts"] = torch.stack([b["ts"] for b in batch])
         out["ts_len"] = torch.tensor([b["ts_len"] for b in batch])
+        out["text_embedding_all_segments"] = torch.stack([b["text_embedding_all_segments"] for b in batch])
+        out["moment_embed"] = torch.stack([b["moment_embed"] for b in batch]) if batch[0]["moment_embed"] is not None else None
         out["image_id"] = [b["image_id"] for b in batch]
         out["ts_id"] = torch.tensor([b["ts_id"] for b in batch])
         out["caps"] = [b["caps"] for b in batch]
+        # out["attn_mask"] = torch.stack([b["attn_mask"] for b in batch])
 
         return out

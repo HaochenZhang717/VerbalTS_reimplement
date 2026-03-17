@@ -3,8 +3,9 @@ data:
   name: mine
   ts_path: /playpen/haochenz/LitsDatasets/128_len_ts/istanbul_traffic
   caps_path: /playpen-shared/haochenz/LitsDatasets/128_len_caps_one_per_channel_0309/istanbul_traffic/
+  text_embed_path: /playpen-shared/haochenz/LitsDatasets/128_len_caps_one_per_channel_0309/istanbul_traffic/
   seq_len: 128
-  num_channels: 1
+  num_channels: 2
   num_segments: 4
 
 ### Pretrain ###
