@@ -22,9 +22,6 @@ class ConditionalGeneratorQwen(nn.Module):
         self._init_diff(diff_configs)
 
     def _init_condition_encoders(self, diff_configs, cond_configs):
-        print(cond_configs["cond_modal"])
-        print(cond_configs["text"])
-        breakpoint()
         if cond_configs["cond_modal"] == "text":
             cond_configs["text"]["device"] = self.device
             self.cond_projector = nn.Sequential(

@@ -90,8 +90,6 @@ def _evaluate_cond_gen(evaluator, sampler="ddim", n_sample=10):
     return df, result_ts_dict
 
 def run(training_stage, train_configs, eval_configs, model_diff_configs, model_cond_configs, output_folder, data_folder="", only_evaluate=False):
-    print(model_cond_configs)
-    breakpoint()
     if only_evaluate == False:
         train(training_stage, train_configs, model_diff_configs, model_cond_configs, eval_configs, output_folder)
 
