@@ -11,7 +11,7 @@ import random
 from data import GenerationDataset
 from models.conditional_generator import ConditionalGenerator
 from models.conditional_generator_debug import ConditionalGeneratorDebug
-from models.unconditional_generator import UnConditionalGenerator
+from models.unconditional_generator_debug import UnConditionalGeneratorDebug
 from train.trainer import Trainer
 from evaluation.base_evaluator import BaseEvaluator
 
@@ -26,7 +26,7 @@ def train(training_stage, train_configs, model_diff_configs, model_cond_configs,
     dataset = GenerationDataset(train_configs["data"])
 
     if training_stage == "pretrain":
-        model = UnConditionalGenerator(model_diff_configs)
+        model = UnConditionalGeneratorDebug(model_diff_configs)
     elif training_stage == "finetune":
         if "attrs" in model_cond_configs.keys():
             model_cond_configs["attrs"]["num_attr_ops"] = dataset.num_attr_ops.tolist()
@@ -61,7 +61,7 @@ def evaluate(training_stage, eval_configs, model_diff_configs, model_cond_config
     dataset = GenerationDataset(eval_configs["data"])
 
     if training_stage == "pretrain":
-        model = UnConditionalGenerator(model_diff_configs)
+        model = UnConditionalGeneratorDebug(model_diff_configs)
     elif training_stage == "finetune":
         if "attrs" in model_cond_configs.keys():
             model_cond_configs["attrs"]["num_attr_ops"] = dataset.num_attr_ops.tolist()

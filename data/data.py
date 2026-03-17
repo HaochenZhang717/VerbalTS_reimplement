@@ -169,7 +169,6 @@ class MySplit(Dataset):
 
         item = {
             "ts": ts,
-            "tp": torch.arange(self.T),
             "ts_len": self.T,
             "image_id": image_id,
             "ts_id": ts_id,
@@ -182,7 +181,6 @@ class MySplit(Dataset):
     def collate_fn(batch):
         out = {}
         out["ts"] = torch.stack([b["ts"] for b in batch])
-        out["tp"] = torch.stack([b["tp"] for b in batch])
         out["ts_len"] = torch.tensor([b["ts_len"] for b in batch])
         out["image_id"] = [b["image_id"] for b in batch]
         out["ts_id"] = torch.tensor([b["ts_id"] for b in batch])

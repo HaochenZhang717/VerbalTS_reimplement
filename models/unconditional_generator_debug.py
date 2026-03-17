@@ -64,8 +64,8 @@ class UnConditionalGeneratorDebug(nn.Module):
 
     def _unpack_data_uncond_gen(self, batch):
         ts = batch["ts"].to(self.device).float()
-        tp = batch["tp"].to(self.device).float()
-        ts = ts.permute(0, 2, 1)
+        B, C, T = ts.shape
+        tp = torch.arange(T).repeat(B, 1).to(self.device).float()
         return ts, tp
 
     """
