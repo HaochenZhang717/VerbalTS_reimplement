@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=2 python run.py \
+CUDA_VISIBLE_DEVICES=2 python run_debug.py \
     --cond_modal text \
     --training_stage finetune_debug \
     --save_folder ./verbalts_orig_save/synth_u_debug/text2ts_msmdiffmv \
