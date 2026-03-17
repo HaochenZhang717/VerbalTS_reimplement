@@ -1,5 +1,5 @@
 import torch
-from .discriminative_torch import discriminative_score_metrics
+from metrics.discriminative_torch import discriminative_score_metrics
 import numpy as np
 
 def calculate_disc_two_paths(real_path, fake_path):
