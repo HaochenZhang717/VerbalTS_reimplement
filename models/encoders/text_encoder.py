@@ -37,6 +37,7 @@ class CLIPTextEncoder(nn.Module):
         )
     def forward(self, text):
         inputs = self.tokenizer(text, padding=True, return_tensors="pt")["input_ids"]
+        breakpoint()
         inputs = inputs.to(self.device)
         if "output_type" not in self.configs.keys():
             self.configs["output_type"] = "cls"
