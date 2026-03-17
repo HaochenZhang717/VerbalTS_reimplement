@@ -138,7 +138,6 @@ class MySplit(Dataset):
             self.caps.keys(),
             key=lambda x: int(x.replace("image", "")),
         )
-        breakpoint()
         self.block_ids = list(range(self.num_segments))
         self.num_block_choices = len(self.block_ids)
 
@@ -151,6 +150,7 @@ class MySplit(Dataset):
         return len(self.ids)
 
     def __getitem__(self, idx):
+        breakpoint()
         image_id = self.ids[idx]
         ts_id = int(image_id.replace("image", ""))
 
