@@ -14,4 +14,5 @@ CUDA_VISIBLE_DEVICES=1 python run.py \
     --epochs 2500 \
     --batch_size 512 \
     --clip_cache_path "" \
-    --only_evaluate True
+    --only_evaluate True \
+    --samples_name "samples.pt"

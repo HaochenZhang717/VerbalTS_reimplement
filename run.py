@@ -113,7 +113,7 @@ def run(training_stage, train_configs, eval_configs, model_diff_configs, model_c
     df, samples = evaluate(training_stage, eval_configs, model_diff_configs, model_cond_configs, output_folder)
     path = os.path.join(output_folder, "results.csv")
     df.to_csv(path)
-    torch.save(samples, os.path.join(output_folder, "samples.pt"))
+    torch.save(samples, os.path.join(output_folder, args.samples_name))
     return df
 
 ##### Arguments #####
@@ -146,6 +146,7 @@ parser.add_argument("--epochs", type=int, default=200)
 
 parser.add_argument("--guide_w", type=float, default=1.0)
 parser.add_argument("--only_evaluate", type=bool, default=False)
+parser.add_argument("--samples_name", type=str, required=True)
 
 args = parser.parse_args()
 
