@@ -179,7 +179,7 @@ class MySplit(Dataset):
         # ------------------------
         # text embedding
         # ------------------------
-
+        print("ts shape in getitem ", ts.shape)
         text_embed_all_segments = []
         for target_block in self.block_ids:
             channel_embeds = []
