@@ -18,7 +18,7 @@ def calculate_disc_two_paths(real_path, fake_path):
     print(f"real shape: {real.shape}")
     disc_score_list = []
     for i in range(10):
-        fake = samples_dict["sampled_ts"][i, :num_samples]
+        fake = samples_dict["sampled_ts"][0, :num_samples]
 
         discriminative_score = discriminative_score_metrics(
             real, fake,
