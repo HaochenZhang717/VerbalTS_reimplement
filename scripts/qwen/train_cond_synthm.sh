@@ -1,11 +1,11 @@
 CUDA_VISIBLE_DEVICES=4 python run_qwen.py \
     --cond_modal text \
     --training_stage finetune \
-    --save_folder ./verbalts_orig_save/synth_m_my_caps/text2ts_msmdiffmv \
-    --model_diff_config_path configs/synth_m_debug/diff/model_text2ts_dep.yaml \
-    --model_cond_config_path configs/synth_m_debug/cond/text_msmdiffmv.yaml \
-    --train_config_path configs/synth_m_debug/train.yaml \
-    --evaluate_config_path configs/synth_m_debug/evaluate.yaml \
+    --save_folder ./verbalts_orig_save/synth_m_qwen/text2ts_msmdiffmv \
+    --model_diff_config_path configs/synth_m_qwen/diff/model_text2ts_dep.yaml \
+    --model_cond_config_path configs/synth_m_qwen/cond/text_msmdiffmv.yaml \
+    --train_config_path configs/synth_m_qwen/train.yaml \
+    --evaluate_config_path configs/synth_m_qwen/evaluate.yaml \
     --data_folder /playpen/haochenz/LitsDatasets/128_len_ts/synthetic_m \
     --clip_folder "" \
     --multipatch_num 3 \
