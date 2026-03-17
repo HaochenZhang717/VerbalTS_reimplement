@@ -95,6 +95,7 @@ class ConditionalGeneratorDebug(nn.Module):
         return loss_dict
 
     def _unpack_data_cond_gen(self, batch):
+        breakpoint()
         ts = batch["ts"].to(self.device).float()
         tp = batch["tp"].to(self.device).float()
         if "text" in self.cond_configs["cond_modal"]:
