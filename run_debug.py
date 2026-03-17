@@ -80,8 +80,8 @@ def evaluate(training_stage, eval_configs, model_diff_configs, model_cond_config
     # breakpoint()
     evaluator = BaseEvaluator(eval_configs["eval"], dataset, model)
 
-    df = _evaluate_cond_gen(evaluator)
-    return df
+    df, samples_dict = _evaluate_cond_gen(evaluator)
+    return df, samples_dict
 
 
 def _evaluate_cond_gen(evaluator, sampler="ddim", n_sample=10):
@@ -103,16 +103,17 @@ def _evaluate_cond_gen(evaluator, sampler="ddim", n_sample=10):
     info.update(res_dict["df"])
     df = pd.DataFrame([info])
     df["steps"].astype(int)
-    return df
+    return df, result_ts_dict
 
 def run(training_stage, train_configs, eval_configs, model_diff_configs, model_cond_configs, output_folder, data_folder="", only_evaluate=False):
     if only_evaluate == False:
         train(training_stage, train_configs, model_diff_configs, model_cond_configs, eval_configs, output_folder)
 
     eval_configs["data"]["folder"] = data_folder
-    df = evaluate(training_stage, eval_configs, model_diff_configs, model_cond_configs, output_folder)
+    df, samples = evaluate(training_stage, eval_configs, model_diff_configs, model_cond_configs, output_folder)
     path = os.path.join(output_folder, "results.csv")
     df.to_csv(path)
+    torch.save(samples, os.path.join(output_folder, args.samples_name))
     return df
 
 ##### Arguments #####
@@ -145,6 +146,7 @@ parser.add_argument("--epochs", type=int, default=200)
 
 parser.add_argument("--guide_w", type=float, default=1.0)
 parser.add_argument("--only_evaluate", type=bool, default=False)
+parser.add_argument("--samples_name", type=str, required=True)
 
 args = parser.parse_args()
 
