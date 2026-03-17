@@ -78,7 +78,7 @@ class ConditionalGeneratorQwen(nn.Module):
     def _unpack_data_cond_gen(self, batch):
         ts = batch["ts"].to(self.device).float()  # batch_size, num_channels, seq_len
         B, C, T = ts.shape
-        print("ts.shape in _unpack_data_cond_gen", ts.shape)
+        # print("ts.shape in _unpack_data_cond_gen", ts.shape)
         tp = torch.arange(T).repeat(B, 1).to(self.device).float()
         text_embedding_all_segments = batch["text_embedding_all_segments"].to(self.device).float()
         return ts, tp, text_embedding_all_segments
