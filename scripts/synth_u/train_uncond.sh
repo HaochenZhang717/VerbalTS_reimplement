@@ -13,4 +13,5 @@ CUDA_VISIBLE_DEVICES=1 python run.py \
     --base_patch 4 \
     --epochs 2500 \
     --batch_size 512 \
-    --clip_cache_path ""
+    --clip_cache_path "" \
+    --only_evaluate
