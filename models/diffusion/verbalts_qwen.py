@@ -357,8 +357,8 @@ class VerbalTSQwen(nn.Module):
     def forward(self, x_raw, tp, attr_emb_raw, diffusion_step):
         B_raw, inputdim, n_var, L = x_raw.shape
 
-        print("x_raw.shape", x_raw.shape)
-        print("tp.shape", tp.shape)
+        # print("x_raw.shape", x_raw.shape)
+        # print("tp.shape", tp.shape)
         side_emb_raw = self.side_encoder(tp)
         diffusion_emb = self.diffusion_embedding(diffusion_step)
         attr_emb_raw = attr_emb_raw.permute(0, 3, 2, 1)
@@ -381,9 +381,9 @@ class VerbalTSQwen(nn.Module):
         x_in = torch.cat(x_list, dim=-1)
         side_in = torch.cat(side_list, dim=-1)
         attr_emb = torch.cat(attr_emb_list, dim=-1)
-        print(f"x_in.shape = {x_in.shape}")
-        print(f"side_in.shape = {side_in.shape}")
-        print(f"attr_emb.shape = {attr_emb.shape}")
+        # print(f"x_in.shape = {x_in.shape}")
+        # print(f"side_in.shape = {side_in.shape}")
+        # print(f"attr_emb.shape = {attr_emb.shape}")
         # breakpoint()
 
         B, _, Nk, Nl = x_in.shape
