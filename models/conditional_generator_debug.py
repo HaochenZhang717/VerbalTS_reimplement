@@ -3,7 +3,7 @@ import torch.nn as nn
 
 from models.encoders.attr_encoder import AttributeEncoder
 from models.encoders.text_encoder import TextEncoder, CLIPTextEncoder
-from models.encoders.cond_projector import TextProjectorMVarMScaleMStep, AttrProjectorAvg
+from models.encoders.cond_projector import TextProjectorMVarMScaleMStep, AttrProjectorAvg, TextProjectorMVarMScaleMStepDebug
 from models.unconditional_generator_debug import UnConditionalGeneratorDebug
 from models.cttp.cttp_model import CTTP
 import time
@@ -40,7 +40,7 @@ class ConditionalGeneratorDebug(nn.Module):
                 cond_configs["text"]["device"] = self.device
                 self.attr_en = TextEncoder(cond_configs["text"]).to(self.device)
             if cond_configs["text"]["text_projector"] == "var_scale_diffstep_multi":
-                self.cond_projector = TextProjectorMVarMScaleMStep(n_var=diff_configs["diffusion"]["n_var"],
+                self.cond_projector = TextProjectorMVarMScaleMStepDebug(n_var=diff_configs["diffusion"]["n_var"],
                                                          n_scale=diff_configs["diffusion"]["multipatch_num"],
                                                          n_steps=diff_configs["diffusion"]["num_steps"],
                                                          n_stages=cond_configs["text"]["num_stages"],
