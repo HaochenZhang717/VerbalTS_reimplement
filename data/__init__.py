@@ -41,23 +41,22 @@ class GenerationDataset:
         self,
         split,
         batch_size,
-        shuffle=True,
-        num_workers=0,
+        num_workers=16,
         include_self=False,
         pin_memory=True,
-        drop_last=False,
     ):
         split_dataset = self.dataset.get_split(split, include_self)
 
         collate_fn = getattr(split_dataset, "collate_fn", None)
+
         loader = DataLoader(
             dataset=split_dataset,
             batch_size=batch_size,
-            shuffle=shuffle,
+            shuffle=(split in ["train", "valid"]),
             num_workers=num_workers,
             collate_fn=collate_fn,
             pin_memory=pin_memory,
-            drop_last=drop_last,
+            drop_last=False,
         )
         return loader
 
