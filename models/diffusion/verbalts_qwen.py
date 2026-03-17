@@ -378,9 +378,9 @@ class VerbalTSQwen(nn.Module):
         x_in = torch.cat(x_list, dim=-1)
         side_in = torch.cat(side_list, dim=-1)
         attr_emb = torch.cat(attr_emb_list, dim=-1)
-        # print(f"x_in.shape = {x_in.shape}")
-        # print(f"side_in.shape = {side_in.shape}")
-        # print(f"attr_emb.shape = {attr_emb.shape}")
+        print(f"x_in.shape = {x_in.shape}")
+        print(f"side_in.shape = {side_in.shape}")
+        print(f"attr_emb.shape = {attr_emb.shape}")
         # breakpoint()
 
         B, _, Nk, Nl = x_in.shape
