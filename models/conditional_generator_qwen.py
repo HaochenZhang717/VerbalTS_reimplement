@@ -114,5 +114,4 @@ class ConditionalGeneratorQwen(nn.Module):
                     x = self.generator.ddim.reverse(x, pred_noise, t, noise, is_determin=True)
 
             samples.append(x)
-            breakpoint()
         return torch.stack(samples)
