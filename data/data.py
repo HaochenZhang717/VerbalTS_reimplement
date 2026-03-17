@@ -150,7 +150,6 @@ class MySplit(Dataset):
         return len(self.ids)
 
     def __getitem__(self, idx):
-        breakpoint()
         image_id = self.ids[idx]
         ts_id = int(image_id.replace("image", ""))
 
