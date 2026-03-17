@@ -64,7 +64,10 @@ class ConditionalGeneratorDebug(nn.Module):
     """
     def forward(self, batch, is_train):
         x, tp, attrs = self._unpack_data_cond_gen(batch)
-        attr_emb_raw = self.attr_en(attrs)
+        attrs_flatten, attrs_base_size = flatten_caps(attrs)
+        attr_emb_raw = self.attr_en(attrs_flatten)
+        print("attr_emb_raw", attr_emb_raw.shape)
+        breakpoint()
         if self.cond_configs["cond_modal"] == "attr" or "diffstep" not in self.cond_configs["text"]["text_projector"]:
             attr_emb = self.cond_projector(attr_emb_raw)
 
@@ -97,7 +100,6 @@ class ConditionalGeneratorDebug(nn.Module):
         return loss_dict
 
     def _unpack_data_cond_gen(self, batch):
-        breakpoint()
         ts = batch["ts"].to(self.device).float()
         B, _, T = ts.shape
         tp = torch.arange(T).repeat(B, 1).to(self.device).float()
@@ -113,9 +115,8 @@ class ConditionalGeneratorDebug(nn.Module):
             batch['caps'],
             n_channels=1,  # 或者你的C
             n_segments=4
-        )
+        ) # a list with size (batch_size, n_channels, n_segments)
 
-        breakpoint()
         return ts, tp, attrs
 
     def generate(self, batch, n_samples, sampler="ddim"):
@@ -226,3 +227,24 @@ def organize_caps(batch_caps, n_channels, n_segments):
                 caps_out[b][c][s] = v
 
     return caps_out
+
+
+def flatten_caps(caps):
+    """
+    caps: (B, C, S)
+    return:
+        flat_text: List[str] of size B*C*S
+        shape info
+    """
+    B = len(caps)
+    C = len(caps[0])
+    S = len(caps[0][0])
+
+    flat_text = [
+        caps[b][c][s]
+        for b in range(B)
+        for c in range(C)
+        for s in range(S)
+    ]
+
+    return flat_text, (B, C, S)
