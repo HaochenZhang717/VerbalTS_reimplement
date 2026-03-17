@@ -1,6 +1,6 @@
 CUDA_VISIBLE_DEVICES=4 python run.py \
     --cond_modal text \
-    --training_stage finetune_debug \
+    --training_stage finetune \
     --save_folder ./verbalts_orig_save/synth_u/text2ts_msmdiffmv \
     --model_diff_config_path configs/synth_u/diff/model_text2ts_dep.yaml \
     --model_cond_config_path configs/synth_u/cond/text_msmdiffmv.yaml \
