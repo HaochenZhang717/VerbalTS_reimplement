@@ -122,24 +122,23 @@ class MySplit(Dataset):
             self.C = num_channels
 
 
-        self.caps = None
-        if self.caps_path != "none":
-            caps_dict = {}
-            with open(f"{self.caps_path}/{split}_caps_ready.jsonl", "r") as f:
-                for line in f:
-                    item = json.loads(line)
-                    caps_dict[item["id"]] = item["captions"]
-            self.caps = caps_dict
+
+        caps_dict = {}
+        with open(f"{self.caps_path}/{split}_caps_ready.jsonl", "r") as f:
+            for line in f:
+                item = json.loads(line)
+                caps_dict[item["id"]] = item["captions"]
+        self.caps = caps_dict
 
         assert self.T % self.num_segments == 0
 
         self.segment_length = self.T // self.num_segments
 
         self.ids = sorted(
-            self.text_embed.keys(),
+            self.caps.keys(),
             key=lambda x: int(x.replace("image", "")),
         )
-
+        breakpoint()
         self.block_ids = list(range(self.num_segments))
         self.num_block_choices = len(self.block_ids)
 
