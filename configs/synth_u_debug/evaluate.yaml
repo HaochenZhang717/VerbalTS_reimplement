@@ -1,0 +1,18 @@
+### Dataset ###
+data:
+  name: mine
+  ts_path: /playpen/haochenz/LitsDatasets/128_len_ts/synthetic_u
+  caps_path: /playpen-shared/haochenz/LitsDatasets/128_len_caps_one_per_channel_0309/synth_u/
+  seq_len: 128
+  num_channels: 1
+  num_segments: 4
+
+### Evaluate ###
+eval:
+  n_samples: 10
+  model_path: ""
+  batch_size: 128
+  display_interval: 1
+  device: cuda:0
+
+  cache_folder: ./cache/synth-m_text

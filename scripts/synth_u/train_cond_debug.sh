@@ -2,10 +2,10 @@ CUDA_VISIBLE_DEVICES=2 python run.py \
     --cond_modal text \
     --training_stage finetune_debug \
     --save_folder ./verbalts_orig_save/synth_u_debug/text2ts_msmdiffmv \
-    --model_diff_config_path configs/synth_u/diff/model_text2ts_dep.yaml \
-    --model_cond_config_path configs/synth_u/cond/text_msmdiffmv.yaml \
-    --train_config_path configs/synth_u/train.yaml \
-    --evaluate_config_path configs/synth_u/evaluate.yaml \
+    --model_diff_config_path configs/synth_u_debug/diff/model_text2ts_dep.yaml \
+    --model_cond_config_path configs/synth_u_debug/cond/text_msmdiffmv.yaml \
+    --train_config_path configs/synth_u_debug/train.yaml \
+    --evaluate_config_path configs/synth_u_debug/evaluate.yaml \
     --data_folder /playpen/haochenz/LitsDatasets/128_len_ts/synthetic_u \
     --clip_folder "" \
     --multipatch_num 3 \
