@@ -36,10 +36,11 @@ class CustomSplit(Dataset):
 
     def _load_data(self):
         ts = np.load(os.path.join(self.folder, self.split+"_ts.npy"))     # [n_samples, n_steps]
-        attrs = np.load(os.path.join(self.folder, self.split+"_attrs_idx.npy"))  # [n_samples, n_attrs]
+        # attrs = np.load(os.path.join(self.folder, self.split+"_attrs_idx.npy"))  # [n_samples, n_attrs]
         caps = np.load(os.path.join(self.folder, self.split+fr"_text_caps.npy"), allow_pickle=True)
 
-        self.ts, self.attrs, self.caps = ts, attrs, caps
+        # self.ts, self.attrs, self.caps = ts, attrs, caps
+        self.ts, self.caps = ts, caps
         self.n_samples = self.ts.shape[0]
         self.n_steps = self.ts.shape[1]
         self.n_attrs = self.attrs.shape[1]
@@ -52,7 +53,7 @@ class CustomSplit(Dataset):
             tmp_ts = tmp_ts[...,np.newaxis]
         return {"ts": tmp_ts,
                 "ts_len": tmp_ts.shape[0],
-                "attrs": self.attrs[idx],
+                # "attrs": self.attrs[idx],
                 "cap": self.caps[idx][cap_id],
                 "tp": self.time_point}
 
