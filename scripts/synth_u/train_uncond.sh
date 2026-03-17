@@ -17,7 +17,7 @@
 #    --only_evaluate True \
 #    --samples_name "samples.pt"
 
-CUDA_VISIBLE_DEVICES=1 python run.py \
+CUDA_VISIBLE_DEVICES=1 python run_debug.py \
     --cond_modal text \
     --training_stage pretrain \
     --save_folder ./verbalts_orig_save/uncond_synth_m/text2ts_msmdiffmv \
@@ -35,7 +35,7 @@ CUDA_VISIBLE_DEVICES=1 python run.py \
     --clip_cache_path "" \
     --samples_name "samples.pt"
 
-  CUDA_VISIBLE_DEVICES=1 python run.py \
+  CUDA_VISIBLE_DEVICES=1 python run_debug.py \
     --cond_modal text \
     --training_stage pretrain \
     --save_folder ./verbalts_orig_save/uncond_istanbul_traffic/text2ts_msmdiffmv \
