@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
 
-from models.encoders.attr_encoder import AttributeEncoder
-from models.encoders.text_encoder import TextEncoder, CLIPTextEncoder, MultiModalEncoder
-from models.encoders.cond_projector import TextProjectorMVarMScaleMStep, AttrProjectorAvg
+# from models.encoders.attr_encoder import AttributeEncoder
+# from models.encoders.text_encoder import TextEncoder, CLIPTextEncoder
+# from models.encoders.cond_projector import TextProjectorMVarMScaleMStep, AttrProjectorAvg
 from models.unconditional_generator_qwen import UnConditionalGeneratorQwen
 from models.cttp.cttp_model import CTTP
 import time
