@@ -170,6 +170,7 @@ class BaseEvaluator:
 
                 # 🔵 新增：保存数据（移动到CPU避免显存爆炸）
                 print(batch.keys())
+                print(batch["caps"][0])
                 result_ts_dict["caption"].extend(batch["cap"])
                 result_ts_dict["real_ts"].append(batch["ts"].cpu())
                 result_ts_dict["sampled_ts"].append(multi_preds.cpu())
