@@ -181,12 +181,8 @@ class MySplit(Dataset):
         out = {}
         out["ts"] = torch.stack([b["ts"] for b in batch])
         out["ts_len"] = torch.tensor([b["ts_len"] for b in batch])
-        out["text_embedding_all_segments"] = torch.stack([b["text_embedding_all_segments"] for b in batch])
-        out["moment_embed"] = torch.stack([b["moment_embed"] for b in batch]) if batch[0][
-                                                                                     "moment_embed"] is not None else None
         out["image_id"] = [b["image_id"] for b in batch]
         out["ts_id"] = torch.tensor([b["ts_id"] for b in batch])
         out["caps"] = [b["caps"] for b in batch]
-        # out["attn_mask"] = torch.stack([b["attn_mask"] for b in batch])
 
         return out
