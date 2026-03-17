@@ -47,9 +47,10 @@ def train(training_stage, train_configs, model_diff_configs, model_cond_configs,
     print("\n***** Model Configs *****")
     path = os.path.join(output_folder, "model_diff_configs.yaml")
     save_configs(model_diff_configs, path)
-    if training_stage == "finetune":
+    if training_stage in ["finetune", "finetune_debug"]:
         path = os.path.join(output_folder, "model_cond_configs.yaml")
         save_configs(model_cond_configs, path)
+
 
     pretrainer = Trainer(train_configs["train"], eval_configs, dataset, model)
     print("Begin training!")
@@ -67,6 +68,12 @@ def evaluate(training_stage, eval_configs, model_diff_configs, model_cond_config
         if "attrs" in model_cond_configs.keys():
             model_cond_configs["attrs"]["num_attr_ops"] = dataset.num_attr_ops.tolist()
         model = ConditionalGenerator(model_diff_configs, model_cond_configs)
+    elif training_stage == "finetune_debug":
+        if "attrs" in model_cond_configs.keys():
+            model_cond_configs["attrs"]["num_attr_ops"] = dataset.num_attr_ops.tolist()
+        model = ConditionalGeneratorDebug(model_diff_configs, model_cond_configs)
+    else:
+        raise Exception("Invalid training stage")
 
     print("\n***** Evaluate Configs *****")
     path = os.path.join(output_folder, "eval_configs.yaml")
@@ -150,7 +157,7 @@ print("All files will be saved to '{}'".format(save_folder))
 train_configs = yaml.safe_load(open(args.train_config_path))
 eval_configs = yaml.safe_load(open(args.evaluate_config_path))
 model_diff_configs = yaml.safe_load(open(args.model_diff_config_path))
-if args.training_stage == "finetune":
+if args.training_stage in ["finetune", "finetune_debug"]:
     model_cond_configs = yaml.safe_load(open(args.model_cond_config_path))
     model_cond_configs["cond_modal"] = args.cond_modal
 else:
@@ -165,7 +172,7 @@ eval_configs["eval"]["batch_size"] = args.batch_size
 model_diff_configs["diffusion"]["multipatch_num"] = args.multipatch_num
 model_diff_configs["diffusion"]["L_patch_len"] = args.L_patch_len
 model_diff_configs["diffusion"]["base_patch"] = args.base_patch
-if "text" in args.model_cond_config_path and args.training_stage == "finetune":
+if "text" in args.model_cond_config_path and args.training_stage in ["finetune", "finetune_debug"]:
     model_cond_configs["text"]["output_type"] = args.text_output_type
     model_cond_configs["text"]["num_stages"] = args.diff_stage_num
     model_cond_configs["text"]["pos_emb"] = args.text_pos_emb
