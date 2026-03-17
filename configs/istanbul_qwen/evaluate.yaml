@@ -8,7 +8,6 @@ data:
   num_channels: 1
   num_segments: 4
 
-
 ### Evaluate ###
 eval:
   n_samples: 10
