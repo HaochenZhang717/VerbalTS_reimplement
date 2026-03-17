@@ -3,7 +3,7 @@ import torch.nn as nn
 
 from models.encoders.attr_encoder import AttributeEncoder
 from models.encoders.text_encoder import TextEncoder, CLIPTextEncoder
-from models.encoders.cond_projector import TextProjectorMVarMScaleMStep, AttrProjectorAvg, TextProjectorMVarMScaleMStepDebug
+from models.encoders.cond_projector import TextProjectorMVarMScaleMStep, AttrProjectorAvg
 from models.unconditional_generator_debug import UnConditionalGeneratorDebug
 from models.cttp.cttp_model import CTTP
 import time
@@ -40,7 +40,7 @@ class ConditionalGeneratorDebug(nn.Module):
                 cond_configs["text"]["device"] = self.device
                 self.attr_en = TextEncoder(cond_configs["text"]).to(self.device)
             if cond_configs["text"]["text_projector"] == "var_scale_diffstep_multi":
-                self.cond_projector = TextProjectorMVarMScaleMStepDebug(n_var=diff_configs["diffusion"]["n_var"],
+                self.cond_projector = TextProjectorMVarMScaleMStep(n_var=diff_configs["diffusion"]["n_var"],
                                                          n_scale=diff_configs["diffusion"]["multipatch_num"],
                                                          n_steps=diff_configs["diffusion"]["num_steps"],
                                                          n_stages=cond_configs["text"]["num_stages"],
@@ -100,7 +100,7 @@ class ConditionalGeneratorDebug(nn.Module):
 
     def _unpack_data_cond_gen(self, batch):
         ts = batch["ts"].to(self.device).float()
-        B, _, T = ts.shape
+        B, C, T = ts.shape
         tp = torch.arange(T).repeat(B, 1).to(self.device).float()
         # if "text" in self.cond_configs["cond_modal"]:
         #     attrs = batch["cap"]
@@ -110,9 +110,9 @@ class ConditionalGeneratorDebug(nn.Module):
         #     attrs = batch["attrs"].to(self.device).long()
         # ts = ts.permute(0, 2, 1)
 
-        attrs = organize_caps(
+        attrs = merge_caps_all(
             batch['caps'],
-            n_channels=1,  # 或者你的C
+            n_channels=C,  # 或者你的C
             n_segments=4
         ) # a list with size (batch_size, n_channels, n_segments)
 
@@ -226,6 +226,32 @@ def organize_caps(batch_caps, n_channels, n_segments):
                 caps_out[b][c][s] = v
 
     return caps_out
+
+
+def merge_caps_all(batch_caps, n_channels, n_segments):
+    """
+    Return:
+        merged_caps: list[str] of length B
+    """
+
+    organized = organize_caps(batch_caps, n_channels, n_segments)
+
+    B = len(organized)
+    merged_caps = []
+
+    for b in range(B):
+        texts = []
+
+        for c in range(n_channels):
+            for s in range(n_segments):
+                cap = organized[b][c][s]
+
+                # 加一点结构信息（很重要！）
+                texts.append(f"Channel {c}, Segment {s+1}: {cap}")
+
+        merged_caps.append(" ".join(texts))
+
+    return merged_caps
 
 
 def flatten_caps(caps):
