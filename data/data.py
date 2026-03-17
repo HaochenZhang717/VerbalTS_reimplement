@@ -82,7 +82,7 @@ class MyDataset:
 
         self.attr_n_ops = None
 
-    def get_split(self, split, text_type=None, *args):
+    def get_split(self, split, *args):
         return MySplit(
             ts_path=self.ts_path,
             caps_path=self.caps_path,

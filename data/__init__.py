@@ -40,7 +40,6 @@ class GenerationDataset:
     def get_loader(
         self,
         split,
-        text_type,
         batch_size,
         shuffle=True,
         num_workers=0,
@@ -48,7 +47,7 @@ class GenerationDataset:
         pin_memory=True,
         drop_last=False,
     ):
-        split_dataset = self.dataset.get_split(split, text_type, include_self)
+        split_dataset = self.dataset.get_split(split, include_self)
 
         collate_fn = getattr(split_dataset, "collate_fn", None)
         loader = DataLoader(
