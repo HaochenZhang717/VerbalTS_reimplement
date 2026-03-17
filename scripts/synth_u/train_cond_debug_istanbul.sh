@@ -13,4 +13,5 @@ CUDA_VISIBLE_DEVICES=4 python run_debug.py \
     --base_patch 4 \
     --epochs 2500 \
     --batch_size 512 \
-    --clip_cache_path ""
+    --clip_cache_path "" \
+    --samples_name "samples.pt"
