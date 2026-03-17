@@ -1,3 +1,4 @@
+export USE_CAUSAL=false
 CUDA_VISIBLE_DEVICES=4 python run_qwen.py \
     --cond_modal text \
     --training_stage finetune \
