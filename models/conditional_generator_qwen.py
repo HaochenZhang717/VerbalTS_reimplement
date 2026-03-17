@@ -24,14 +24,14 @@ class ConditionalGeneratorQwen(nn.Module):
     def _init_condition_encoders(self, diff_configs, cond_configs):
         print(cond_configs["cond_modal"])
         breakpoint()
-        if cond_configs["cond_modal"] == "multimodal":
-            cond_configs["multimodal"]["device"] = self.device
+        if cond_configs["cond_modal"] == "text":
+            cond_configs["text"]["device"] = self.device
             self.cond_projector = nn.Sequential(
-                nn.Linear(cond_configs["multimodal"]["pretrain_model_dim"],
-                          cond_configs["multimodal"]["vl_emb_hidden_dim"]),
-                nn.LayerNorm(cond_configs["multimodal"]["vl_emb_hidden_dim"]),
+                nn.Linear(cond_configs["text"]["pretrain_model_dim"],
+                          cond_configs["text"]["vl_emb_hidden_dim"]),
+                nn.LayerNorm(cond_configs["text"]["vl_emb_hidden_dim"]),
                 nn.LeakyReLU(0.2, inplace=True),
-                nn.Linear(cond_configs["multimodal"]["vl_emb_hidden_dim"], cond_configs["multimodal"]["vl_emb"])
+                nn.Linear(cond_configs["text"]["vl_emb_hidden_dim"], cond_configs["text"]["vl_emb"])
             )
             self.cond_projector = self.cond_projector.to(self.device)
         else:
