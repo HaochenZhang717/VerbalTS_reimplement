@@ -9,6 +9,8 @@ from models.cttp.cttp_model import CTTP
 import time
 import random
 import yaml
+import re
+
 
 class ConditionalGeneratorDebug(nn.Module):
     def __init__(self, diff_configs, cond_configs):
@@ -97,14 +99,23 @@ class ConditionalGeneratorDebug(nn.Module):
     def _unpack_data_cond_gen(self, batch):
         breakpoint()
         ts = batch["ts"].to(self.device).float()
-        tp = batch["tp"].to(self.device).float()
-        if "text" in self.cond_configs["cond_modal"]:
-            attrs = batch["cap"]
-        elif "constraint" in self.cond_configs["cond_modal"]:
-            attrs = batch["cap"]
-        elif self.cond_configs["cond_modal"] == "attr":
-            attrs = batch["attrs"].to(self.device).long()
-        ts = ts.permute(0, 2, 1)
+        B, _, T = ts.shape
+        tp = torch.arange(T).repeat(B, 1).to(self.device).float()
+        # if "text" in self.cond_configs["cond_modal"]:
+        #     attrs = batch["cap"]
+        # elif "constraint" in self.cond_configs["cond_modal"]:
+        #     attrs = batch["cap"]
+        # elif self.cond_configs["cond_modal"] == "attr":
+        #     attrs = batch["attrs"].to(self.device).long()
+        # ts = ts.permute(0, 2, 1)
+
+        attrs = organize_caps(
+            batch['caps'],
+            n_channels=1,  # 或者你的C
+            n_segments=4
+        )
+
+        breakpoint()
         return ts, tp, attrs
 
     def generate(self, batch, n_samples, sampler="ddim"):
@@ -170,3 +181,48 @@ class ConditionalGeneratorDebug(nn.Module):
                     x = self.generator.ddim.reverse(x, pred_noise, t, noise, is_determin=True)
             samples.append(x)
         return torch.stack(samples)
+
+
+def organize_caps(batch_caps, n_channels, n_segments):
+    """
+    Args:
+        batch_caps: list of size B
+            each element: list of dicts [{key: caption}, ...]
+        n_channels: int
+        n_segments: int
+
+    Returns:
+        caps_out: list of size (B, C, S)
+            caps_out[b][c][s] = string
+    """
+
+    B = len(batch_caps)
+
+    # 初始化
+    caps_out = [
+        [
+            ["" for _ in range(n_segments)]  # segments
+            for _ in range(n_channels)      # channels
+        ]
+        for _ in range(B)
+    ]
+
+    for b in range(B):
+        caps_list = batch_caps[b]
+
+        for d in caps_list:
+            for k, v in d.items():
+                # 解析 key: segX_channelY
+                # e.g. seg1_channel0
+                seg_match = re.search(r"seg(\d+)", k)
+                ch_match = re.search(r"channel(\d+)", k)
+
+                if seg_match is None or ch_match is None:
+                    raise ValueError(f"Bad key: {k}")
+
+                s = int(seg_match.group(1)) - 1  # 0-based
+                c = int(ch_match.group(1))
+
+                caps_out[b][c][s] = v
+
+    return caps_out
