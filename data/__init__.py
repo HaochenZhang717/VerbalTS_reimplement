@@ -41,9 +41,11 @@ class GenerationDataset:
         self,
         split,
         batch_size,
+        shuffle=True,
         num_workers=16,
         include_self=False,
         pin_memory=True,
+        drop_last=False,
     ):
         split_dataset = self.dataset.get_split(split, include_self)
 
@@ -52,11 +54,11 @@ class GenerationDataset:
         loader = DataLoader(
             dataset=split_dataset,
             batch_size=batch_size,
-            shuffle=(split in ["train", "valid"]),
+            shuffle=shuffle,
             num_workers=num_workers,
             collate_fn=collate_fn,
             pin_memory=pin_memory,
-            drop_last=False,
+            drop_last=drop_last,
         )
         return loader
 
