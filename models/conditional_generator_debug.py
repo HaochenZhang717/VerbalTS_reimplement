@@ -67,7 +67,6 @@ class ConditionalGeneratorDebug(nn.Module):
         attrs_flatten, attrs_base_size = flatten_caps(attrs)
         attr_emb_raw = self.attr_en(attrs_flatten)
         print("attr_emb_raw", attr_emb_raw.shape)
-        breakpoint()
         if self.cond_configs["cond_modal"] == "attr" or "diffstep" not in self.cond_configs["text"]["text_projector"]:
             attr_emb = self.cond_projector(attr_emb_raw)
 
@@ -76,8 +75,8 @@ class ConditionalGeneratorDebug(nn.Module):
             t = torch.randint(0, self.generator.num_steps, [B], device=self.device)
             if "text" in self.cond_configs["cond_modal"] and "diffstep" in self.cond_configs["text"]["text_projector"]:
                 attr_emb = self.cond_projector(attr_emb_raw, t)
-
-            # breakpoint()
+            print("attr_emb", attr_emb.shape)
+            breakpoint()
             loss = self.generator._noise_estimation_loss(x, tp, attr_emb, t)
             return loss
         
