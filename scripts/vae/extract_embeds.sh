@@ -39,7 +39,7 @@ MODE="mean"   # mean / full / flatten
 echo "Extracting embeddings..."
 echo "Mode: ${MODE}"
 
-python extract_embedding.py \
+python extract_vae_embeds.py \
     --data_path ${DATA_PATH} \
     --ckpt_path ${CKPT_PATH} \
     --batch_size ${BATCH_SIZE} \
