@@ -68,7 +68,8 @@ def train_one_epoch(model, dataloader, optimizer, device):
 
     for batch in pbar:
         x = batch[0].to(device)
-
+        print(x.shape)
+        breakpoint()
         out = model(x)
 
         loss_dict = model.loss_function(
