@@ -4,7 +4,7 @@
 # 基础配置
 # =========================
 
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=3
 
 # 数据路径（改成你的）
 TRAIN_PATH="/playpen/haochenz/LitsDatasets/128_len_ts/synthetic_u/train_ts.npy"
