@@ -60,7 +60,7 @@ class ConditionalGeneratorQwen(nn.Module):
         # x, tp, text_embedding_all_segments, moment_embeds = self._unpack_data_cond_gen(batch)
         x, tp, text_embedding_all_segments, vae_embeds, moment_embeds  = self._unpack_data_cond_gen(batch)
         B, C, T = x.shape
-        print(f"moment_embed.shape = {vae_embeds.shape}")
+        print(f"moment_embed.shape = {moment_embeds.shape}")
         print(f"vae_embed.shape = {vae_embeds.shape}")
 
         if self.cond_configs["cond_modal"] == "text":
