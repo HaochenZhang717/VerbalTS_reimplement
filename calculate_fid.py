@@ -69,7 +69,7 @@ def get_args():
 # Dataset
 # =========================
 def load_dataset(dict_path, dict_key, idx=-1):
-    data = torch.load(dict_path, weight_only=False)[dict_key]
+    data = torch.load(dict_path, weights_only=False)[dict_key]
     if dict_key == "sampled_ts":
         if idx > -1:
             data = data[idx]
