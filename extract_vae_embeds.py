@@ -26,12 +26,12 @@ def get_args():
     parser.add_argument("--latent_dim", type=int, default=64)
 
     # embedding 类型
-    parser.add_argument(
-        "--mode",
-        type=str,
-        default="mean",
-        choices=["mean", "full", "flatten"]
-    )
+    # parser.add_argument(
+    #     "--mode",
+    #     type=str,
+    #     default="mean",
+    #     choices=["mean", "full", "flatten"]
+    # )
 
     parser.add_argument("--save_path", type=str, required=True)
     parser.add_argument("--device", type=str, default="cuda")
@@ -71,15 +71,16 @@ def extract_embeddings(model, dataloader, device, mode):
         out = model(x)
         mu = out["mu"]   # (B, C, T', latent)
 
-        if mode == "mean":
-            emb = mu.mean(dim=2)  # (B, C, latent)
-
-        elif mode == "full":
-            emb = mu  # (B, C, T', latent)
-
-        elif mode == "flatten":
-            emb = mu.reshape(mu.size(0), -1)
-
+        # if mode == "mean":
+        #     emb = mu.mean(dim=2)  # (B, C, latent)
+        #
+        # elif mode == "full":
+        #     emb = mu  # (B, C, T', latent)
+        #
+        # elif mode == "flatten":
+        #     emb = mu.reshape(mu.size(0), -1)
+        emb = mu
+        breakpoint()
         all_embeddings.append(emb.cpu())
 
     return torch.cat(all_embeddings, dim=0)
