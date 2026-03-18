@@ -22,6 +22,7 @@ def calculate_disc_two_paths(real_path, fake_path, save_path="disc_results.jsonl
 
     disc_score_list = []
     print(real.shape)
+    print(samples_dict["sampled_ts"].shape)
     for i in range(samples_dict["sampled_ts"].shape[0]):
         fake = samples_dict["sampled_ts"][i, :num_samples]
         for _ in range(10):
