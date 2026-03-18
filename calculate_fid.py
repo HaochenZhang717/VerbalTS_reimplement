@@ -89,7 +89,7 @@ def extract_embeddings(model, dataloader, device):
 
     all_embeddings = []
 
-    for batch in tqdm(dataloader, desc="Extracting"):
+    for batch in dataloader:
         x = batch[0].to(device)
         with torch.no_grad():
             out = model(x)
@@ -158,7 +158,10 @@ def main(args):
     fid_array = np.array(fid_list)
     mean_fid = np.mean(fid_array)
     std_fid = np.std(fid_array)
+
     print("\n==========================")
+    print("real_path: {}".format(args.real_path))
+    print("fake_path: {}".format(args.fake_path))
     print(f"FID: ${mean_fid:.6f} \pm {std_fid:.6f}$")
     print("==========================\n")
 
