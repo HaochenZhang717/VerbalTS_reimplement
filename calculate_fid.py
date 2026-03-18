@@ -5,7 +5,32 @@ import torch
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
-from models.vae.vae import TimeSeriesVAE
+from models.vae.fid_vae import FIDVAE
+
+from scipy.linalg import sqrtm
+
+def compute_fid(real, fake):
+    """
+    real, fake: (N, D)
+    """
+
+    mu_r = np.mean(real, axis=0)
+    mu_f = np.mean(fake, axis=0)
+
+    sigma_r = np.cov(real, rowvar=False)
+    sigma_f = np.cov(fake, rowvar=False)
+
+    covmean = sqrtm(sigma_r @ sigma_f)
+
+    # 数值稳定（必须）
+    if np.iscomplexobj(covmean):
+        covmean = covmean.real
+
+    fid = np.sum((mu_r - mu_f) ** 2) + np.trace(
+        sigma_r + sigma_f - 2 * covmean
+    )
+
+    return float(fid)
 
 
 # =========================
@@ -43,10 +68,11 @@ def get_args():
 # =========================
 # Dataset
 # =========================
-def load_dataset(dict_path, dict_key):
+def load_dataset(dict_path, dict_key, idx=-1):
     data = torch.load(dict_path)[dict_key]
     if dict_key == "sampled_ts":
-        data = data[0]
+        if idx > -1:
+            data = data[idx]
     print(f"Loaded {dict_path}, key: {dict_key}: {data.shape}")
     return TensorDataset(data)
 
@@ -81,19 +107,17 @@ def main(args):
 
     device = args.device if torch.cuda.is_available() else "cpu"
 
-    real_dataset = load_dataset(args.real_path, "real_ts")
-    fake_dataset = load_dataset(args.fake_path, "sample_ts")
-
+    real_dataset = load_dataset(args.real_path, "real_ts", idx=-1)
     real_dataloader = DataLoader(real_dataset, batch_size=args.batch_size, shuffle=False)
-    fake_dataloader = DataLoader(fake_dataset, batch_size=args.batch_size, shuffle=False)
 
     sample = real_dataset[0][0]
     C, T = sample.shape
 
     # ===== load model =====
-    model = TimeSeriesVAE(
+    model = FIDVAE(
         input_dim=C,
         output_dim=C,
+        seq_len=T,
         hidden_size=args.hidden_size,
         num_layers=args.num_layers,
         num_heads=args.num_heads,
@@ -103,19 +127,38 @@ def main(args):
     model.load_state_dict(torch.load(args.ckpt_path, map_location=device))
     print(f"Loaded checkpoint from {args.ckpt_path}")
 
-    # ===== extract =====
     real_embeddings = extract_embeddings(
         model,
         real_dataloader,
         device,
-    ) # (N, seq_len, dim)
+    )
 
-    fake_embeddings = extract_embeddings(
-        model,
-        fake_dataloader,
-        device,
-    ) # (N, seq_len, dim)
 
+    fid_list = []
+    for i in range(10):
+        fake_dataset = load_dataset(args.fake_path, "sampled_ts",idx=i)
+        fake_dataloader = DataLoader(fake_dataset, batch_size=args.batch_size, shuffle=False)
+
+        # ===== extract =====
+        fake_embeddings = extract_embeddings(
+            model,
+            fake_dataloader,
+            device,
+        ) # (N, seq_len, dim)
+
+        print("Real embeddings:", real_embeddings.shape)
+        print("Fake embeddings:", fake_embeddings.shape)
+
+        # ===== compute FID =====
+        fid = compute_fid(real_embeddings, fake_embeddings)
+        fid_list.append(fid)
+
+    fid_array = np.array(fid_list)
+    mean_fid = np.mean(fid_array)
+    std_fid = np.std(fid_array)
+    print("\n==========================")
+    print(f"FID: {mean_fid:.6f} \pm {std_fid:.6f}")
+    print("==========================\n")
 
 
 if __name__ == "__main__":
