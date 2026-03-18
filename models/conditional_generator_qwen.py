@@ -58,9 +58,11 @@ class ConditionalGeneratorQwen(nn.Module):
 
     def forward(self, batch, is_train):
         # x, tp, text_embedding_all_segments, moment_embeds = self._unpack_data_cond_gen(batch)
-        x, tp, text_embedding_all_segments, vae_embeds  = self._unpack_data_cond_gen(batch)
+        x, tp, text_embedding_all_segments, vae_embeds, moment_embeds  = self._unpack_data_cond_gen(batch)
         B, C, T = x.shape
-
+        print(f"moment_embed.shape = {vae_embeds.shape}")
+        print(f"vae_embed.shape = {vae_embeds.shape}")
+        breakpoint()
         if self.cond_configs["cond_modal"] == "text":
             attr_embed_raw = text_embedding_all_segments
         elif self.cond_configs["cond_modal"] == "vae_embed":
@@ -108,7 +110,8 @@ class ConditionalGeneratorQwen(nn.Module):
         tp = torch.arange(T).repeat(B, 1).to(self.device).float()
         text_embedding_all_segments = batch["text_embedding_all_segments"].to(self.device).float()
         vae_embeds = batch["vae_embeds"].to(self.device).float()
-        return ts, tp, text_embedding_all_segments, vae_embeds
+        moment_embeds = batch["moment_embed"].to(self.device).float()
+        return ts, tp, text_embedding_all_segments, vae_embeds, moment_embeds
 
     def generate(self, batch, n_samples, sampler="ddim"):
         if self.cond_configs["cond_modal"] == "constraint":
@@ -120,7 +123,7 @@ class ConditionalGeneratorQwen(nn.Module):
     @torch.no_grad()
     def generate_text(self, batch, n_samples, sampler="ddim"):
 
-        ts, tp, text_embedding_all_segments, vae_embeds = self._unpack_data_cond_gen(batch)
+        ts, tp, text_embedding_all_segments, vae_embeds, moment_embeds = self._unpack_data_cond_gen(batch)
         B, C, T = ts.shape
 
         if self.cond_configs["cond_modal"] == "text":

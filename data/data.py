@@ -123,9 +123,11 @@ class MySplit(Dataset):
         # load data
         # ------------------------
         self.ts = None
+        self.moment_embed = None
         if ts_path != "none":
             self.ts = np.load(f"{ts_path}/{split}_ts.npy", allow_pickle=True)  # (N,T,C)
             self.N, self.T, self.C = self.ts.shape
+            self.moment_embed = np.load(f"{ts_path}/{split}_moment_embeds.npy", allow_pickle=True)
         else:
             self.N = -1
             self.T = seq_len
@@ -211,6 +213,7 @@ class MySplit(Dataset):
             "ts_id": ts_id,
             "caps": caps,
             "vae_embeds": vae_embed,
+            "moment_embed": torch.from_numpy(self.moment_embed[idx]).float() if self.moment_embed is not None else None,
             # 'attn_mask': build_block_causal_mask(self.T, text_embed_all_segments.shape[0])
         }
 
@@ -226,6 +229,8 @@ class MySplit(Dataset):
         out["image_id"] = [b["image_id"] for b in batch]
         out["ts_id"] = torch.tensor([b["ts_id"] for b in batch])
         out["caps"] = [b["caps"] for b in batch]
+        out["moment_embed"] = torch.stack([b["moment_embed"] for b in batch]) if batch[0]["moment_embed"] is not None else None
+
         # out["attn_mask"] = torch.stack([b["attn_mask"] for b in batch])
 
         return out
