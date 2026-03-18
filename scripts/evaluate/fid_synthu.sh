@@ -5,56 +5,45 @@
 # =========================
 export CUDA_VISIBLE_DEVICES=1
 
-# =========================
-# 实验名（必须和训练一致）
-# =========================
-EXP_NAME="vae_synth_u"
 
-# =========================
-# 路径配置
-# =========================
-
-# real data（通常用 test 或 valid）
 REAL_PATH="/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_vae_embed/text2ts_msmdiffmv/0/real_text_samples.pt"
-# fake data（你的生成结果）
 FAKE_PATH="/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_vae_embed/text2ts_msmdiffmv/0/real_text_samples.pt"
-# VAE checkpoint
-CKPT_PATH="./fid_vae_ckpts/${EXP_NAME}/best.pt"
-# 输出（其实现在只是打印，可以以后扩展）
-SAVE_PATH="./fid_results/${EXP_NAME}.txt"
-mkdir -p ./fid_results
-
-# =========================
-# 模型参数（必须和训练一致）
-# =========================
-
-BATCH_SIZE=128
-
-HIDDEN_SIZE=128
-NUM_LAYERS=2
-NUM_HEADS=8
-LATENT_DIM=64
-
-# =========================
-# 运行
-# =========================
-
-echo "=========================="
-echo "Running FID Evaluation"
-echo "Experiment: ${EXP_NAME}"
-echo "=========================="
-
 python calculate_fid.py \
     --real_path ${REAL_PATH} \
     --fake_path ${FAKE_PATH} \
-    --ckpt_path ${CKPT_PATH} \
-    --batch_size ${BATCH_SIZE} \
-    --hidden_size ${HIDDEN_SIZE} \
-    --num_layers ${NUM_LAYERS} \
-    --num_heads ${NUM_HEADS} \
-    --latent_dim ${LATENT_DIM} \
-    --save_path ${SAVE_PATH}
+    --ckpt_path "./fid_vae_ckpts/vae_synth_u/best.pt" \
+    --batch_size 128 \
+    --hidden_size 128 \
+    --num_layers 2 \
+    --num_heads 8 \
+    --latent_dim 64 \
+    --save_path "./fid_results/vae_embed_generation.txt"
 
-echo "=========================="
-echo "FID Done!"
-echo "=========================="
+
+
+REAL_PATH="/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u/text2ts_msmdiffmv/0/verbalts_caps_samples.pt"
+FAKE_PATH="/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u/text2ts_msmdiffmv/0/verbalts_caps_samples.pt"
+python calculate_fid.py \
+    --real_path ${REAL_PATH} \
+    --fake_path ${FAKE_PATH} \
+    --ckpt_path "./fid_vae_ckpts/vae_synth_u/best.pt" \
+    --batch_size 128 \
+    --hidden_size 128 \
+    --num_layers 2 \
+    --num_heads 8 \
+    --latent_dim 64 \
+    --save_path "./fid_results/verbalts_generation.txt"
+
+
+REAL_PATH="/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt"
+FAKE_PATH="/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt"
+python calculate_fid.py \
+    --real_path ${REAL_PATH} \
+    --fake_path ${FAKE_PATH} \
+    --ckpt_path "./fid_vae_ckpts/vae_synth_u/best.pt" \
+    --batch_size 128 \
+    --hidden_size 128 \
+    --num_layers 2 \
+    --num_heads 8 \
+    --latent_dim 64 \
+    --save_path "./fid_results/uncond_generation.txt"
