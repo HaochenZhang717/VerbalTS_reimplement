@@ -16,4 +16,3 @@ CUDA_VISIBLE_DEVICES=6 python run_qwen.py \
     --batch_size 512 \
     --clip_cache_path "" \
     --samples_name "real_text_samples.pt" \
-    --only_evaluate True
