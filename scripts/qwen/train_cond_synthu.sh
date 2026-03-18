@@ -18,7 +18,7 @@ export USE_CAUSAL=false
 #    --samples_name "real_text_samples.pt" \
 
 
-CUDA_VISIBLE_DEVICES=6 python run_qwen.py \
+CUDA_VISIBLE_DEVICES=2 python run_qwen.py \
     --cond_modal vae_embed \
     --training_stage finetune \
     --save_folder ./verbalts_orig_save/synth_u_moment_embed/text2ts_msmdiffmv \
