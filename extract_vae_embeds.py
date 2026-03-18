@@ -59,7 +59,7 @@ def load_dataset(npy_path):
 # Extract Embedding
 # =========================
 @torch.no_grad()
-def extract_embeddings(model, dataloader, device, mode):
+def extract_embeddings(model, dataloader, device):
 
     model.eval()
 
@@ -71,16 +71,8 @@ def extract_embeddings(model, dataloader, device, mode):
         out = model(x)
         mu = out["mu"]   # (B, C, T', latent)
 
-        # if mode == "mean":
-        #     emb = mu.mean(dim=2)  # (B, C, latent)
-        #
-        # elif mode == "full":
-        #     emb = mu  # (B, C, T', latent)
-        #
-        # elif mode == "flatten":
-        #     emb = mu.reshape(mu.size(0), -1)
         emb = mu
-        breakpoint()
+
         all_embeddings.append(emb.cpu())
 
     return torch.cat(all_embeddings, dim=0)
@@ -117,7 +109,6 @@ def main(args):
         model,
         dataloader,
         device,
-        args.mode
     )
 
     print(f"Embedding shape: {embeddings.shape}")
