@@ -69,7 +69,7 @@ def get_args():
 # Dataset
 # =========================
 def load_dataset(dict_path, dict_key, idx=-1):
-    data = torch.load(dict_path)[dict_key]
+    data = torch.load(dict_path, weight_only=False)[dict_key]
     if dict_key == "sampled_ts":
         if idx > -1:
             data = data[idx]
@@ -146,8 +146,8 @@ def main(args):
             device,
         ) # (N, seq_len, dim)
 
-        print("Real embeddings:", real_embeddings.shape)
-        print("Fake embeddings:", fake_embeddings.shape)
+        # print("Real embeddings:", real_embeddings.shape)
+        # print("Fake embeddings:", fake_embeddings.shape)
 
         # ===== compute FID =====
         fid = compute_fid(real_embeddings, fake_embeddings)
