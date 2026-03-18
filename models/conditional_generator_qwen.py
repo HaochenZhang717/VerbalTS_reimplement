@@ -62,9 +62,9 @@ class ConditionalGeneratorQwen(nn.Module):
         B, C, T = x.shape
 
         if self.cond_configs["cond_modal"] == "text":
-            attr_embed = text_embedding_all_segments
+            attr_embed_raw = text_embedding_all_segments
         elif self.cond_configs["cond_modal"] == "vae_embed":
-            attr_embed = vae_embeds
+            attr_embed_raw = vae_embeds
         else:
             raise NotImplementedError
 
@@ -73,12 +73,11 @@ class ConditionalGeneratorQwen(nn.Module):
         if is_train:
             t = torch.randint(0, self.generator.num_steps, [B], device=self.device)
             if self.cond_configs["cond_modal"] == "text":
-                attr_embed = self.cond_projector(attr_embed)  # for now we are not using projector.
+                attr_embed = self.cond_projector(attr_embed_raw)  # for now we are not using projector.
             elif self.cond_configs["cond_modal"] == "vae_embed":
-                attr_embed = self.cond_projector(attr_embed, t)
+                attr_embed = self.cond_projector(attr_embed_raw, t)
             else:
                 raise NotImplementedError
-
             loss = self.generator._noise_estimation_loss(x, tp, attr_embed, t)
             return loss
 
@@ -86,9 +85,9 @@ class ConditionalGeneratorQwen(nn.Module):
         for t in range(self.generator.num_steps):
             t = (torch.ones(B, device=self.device) * t).long()
             if self.cond_configs["cond_modal"] == "text":
-                attr_embed = self.cond_projector(attr_embed)  # for now we are not using projector.
+                attr_embed = self.cond_projector(attr_embed_raw)  # for now we are not using projector.
             elif self.cond_configs["cond_modal"] == "vae_embed":
-                attr_embed = self.cond_projector(attr_embed, t)
+                attr_embed = self.cond_projector(attr_embed_raw, t)
             else:
                 raise NotImplementedError
             tmp_loss_dict = self.generator._noise_estimation_loss(x, tp, attr_embed, t)
@@ -125,9 +124,9 @@ class ConditionalGeneratorQwen(nn.Module):
         B, C, T = ts.shape
 
         if self.cond_configs["cond_modal"] == "text":
-            attr_embed = text_embedding_all_segments
+            attr_embed_raw = text_embedding_all_segments
         elif self.cond_configs["cond_modal"] == "vae_embed":
-            attr_embed = vae_embeds
+            attr_embed_raw = vae_embeds
         else:
             raise NotImplementedError
 
@@ -140,9 +139,9 @@ class ConditionalGeneratorQwen(nn.Module):
                 t = (torch.ones(B, device=self.device) * t).long()
 
                 if self.cond_configs["cond_modal"] == "text":
-                    attr_embed = self.cond_projector(attr_embed)  # for now we are not using projector.
+                    attr_embed = self.cond_projector(attr_embed_raw)  # for now we are not using projector.
                 elif self.cond_configs["cond_modal"] == "vae_embed":
-                    attr_embed = self.cond_projector(attr_embed, t)
+                    attr_embed = self.cond_projector(attr_embed_raw, t)
                 else:
                     raise NotImplementedError
 
