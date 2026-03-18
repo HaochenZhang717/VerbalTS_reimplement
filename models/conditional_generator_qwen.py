@@ -76,7 +76,7 @@ class ConditionalGeneratorQwen(nn.Module):
                 attr_embed = self.cond_projector(attr_embed, t)
             else:
                 raise NotImplementedError
-            breakpoint()
+
             loss = self.generator._noise_estimation_loss(x, tp, attr_embed, t)
             return loss
 
