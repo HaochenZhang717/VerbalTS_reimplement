@@ -210,7 +210,7 @@ class MySplit(Dataset):
             "image_id": image_id,
             "ts_id": ts_id,
             "caps": caps,
-            "vae_embed": vae_embed,
+            "vae_embeds": vae_embed,
             # 'attn_mask': build_block_causal_mask(self.T, text_embed_all_segments.shape[0])
         }
 
@@ -220,7 +220,7 @@ class MySplit(Dataset):
     def collate_fn(batch):
         out = {}
         out["ts"] = torch.stack([b["ts"] for b in batch])
-        out["vae_embed"] = torch.stack([b["vae_embed"] for b in batch])
+        out["vae_embeds"] = torch.stack([b["vae_embeds"] for b in batch])
         out["ts_len"] = torch.tensor([b["ts_len"] for b in batch])
         out["text_embedding_all_segments"] = torch.stack([b["text_embedding_all_segments"] for b in batch])
         out["image_id"] = [b["image_id"] for b in batch]
