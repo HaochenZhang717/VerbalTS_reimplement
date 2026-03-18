@@ -46,7 +46,7 @@ def load_dataset(npy_path):
     if data.ndim == 2:
         data = data[:, None, :]
 
-    data = torch.tensor(data, dtype=torch.float32)
+    data = torch.tensor(data, dtype=torch.float32).permute(0, 2, 1)
 
     print(f"Loaded {npy_path}: {data.shape}")
 
@@ -68,8 +68,6 @@ def train_one_epoch(model, dataloader, optimizer, device):
 
     for batch in pbar:
         x = batch[0].to(device)
-        print(x.shape)
-        breakpoint()
         out = model(x)
 
         loss_dict = model.loss_function(
