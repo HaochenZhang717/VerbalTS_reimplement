@@ -48,7 +48,7 @@ def train(training_stage, train_configs, model_diff_configs, model_cond_configs,
 
 
 def evaluate(training_stage, eval_configs, model_diff_configs, model_cond_configs, output_folder):
-    if args.model_ckpt_name is not "none":
+    if args.model_ckpt_name != "none":
         eval_configs["eval"]["model_path"] = os.path.join(output_folder, f"ckpts/{args.model_ckpt_name}.pth")
     else:
         eval_configs["eval"]["model_path"] = os.path.join(output_folder, f"ckpts/model_best_loss.pth")
