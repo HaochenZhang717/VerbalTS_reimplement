@@ -137,9 +137,9 @@ class MySplit(Dataset):
             self.text_embed = torch.load(text_embed_path, map_location="cpu")
 
         if not vae_embed_path.endswith('.pt'):
-            self.vae_embed = np.load(f"{vae_embed_path}/{split}_vae.npy", all_pickle=True)
+            self.vae_embed = np.load(f"{vae_embed_path}/{split}_vae.npy", allow_pickle=True)
         else:
-            self.vae_embed = np.load(vae_embed_path, all_pickle=True)
+            self.vae_embed = np.load(vae_embed_path, allow_pickle=True)
 
         self.vae_embed = torch.from_numpy(self.vae_embed)
 
