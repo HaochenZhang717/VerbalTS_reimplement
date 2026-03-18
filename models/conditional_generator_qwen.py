@@ -36,7 +36,7 @@ class ConditionalGeneratorQwen(nn.Module):
             self.cond_projector = TextProjectorMVarMScaleMStep(n_var=diff_configs["diffusion"]["n_var"],
                                                                n_scale=diff_configs["diffusion"]["multipatch_num"],
                                                                n_steps=diff_configs["diffusion"]["num_steps"],
-                                                               n_stages=cond_configs["text"]["num_stages"],
+                                                               n_stages=cond_configs["vae_embed"]["num_stages"],
                                                                dim_in=cond_configs["vae_embed"]["embed_dim"],
                                                                dim_out=diff_configs["diffusion"]["channels"])
             self.cond_projector = self.cond_projector.to(self.device)
@@ -46,6 +46,8 @@ class ConditionalGeneratorQwen(nn.Module):
 
     def _init_diff(self, configs):
         configs["device"] = self.device
+        if "vae_embed" in self.cond_configs["cond_modal"]:
+            configs["diffusion"]["text_projector"] = self.cond_configs["vae_embed"]["text_projector"]
 
         self.generator = UnConditionalGeneratorQwen(configs=configs)
         if configs["generator_pretrain_path"] != "":
