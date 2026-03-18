@@ -162,7 +162,7 @@ def main(args):
     print("\n==========================")
     print("real_path: {}".format(args.real_path))
     print("fake_path: {}".format(args.fake_path))
-    print(f"FID: ${mean_fid:.6f} \pm {std_fid:.6f}$")
+    print(f"FID: ${mean_fid:.4f} \pm {std_fid:.4f}$")
     print("==========================\n")
 
 
