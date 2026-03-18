@@ -10,3 +10,4 @@ text:
 
 vae_embed:
   n_latent_tokens: 32
+  embed_dim: 64

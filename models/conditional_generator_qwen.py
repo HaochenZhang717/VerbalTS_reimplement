@@ -37,7 +37,7 @@ class ConditionalGeneratorQwen(nn.Module):
                                                                n_scale=diff_configs["diffusion"]["multipatch_num"],
                                                                n_steps=diff_configs["diffusion"]["num_steps"],
                                                                n_stages=cond_configs["text"]["num_stages"],
-                                                               dim_in=cond_configs["text"]["text_emb"],
+                                                               dim_in=cond_configs["vae_embed"]["embed_dim"],
                                                                dim_out=diff_configs["diffusion"]["channels"])
             self.cond_projector = self.cond_projector.to(self.device)
 
