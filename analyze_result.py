@@ -62,8 +62,8 @@ if __name__ == "__main__":
 
 
     calculate_disc_two_paths(
-        "/playpen/haochenz/VerbalTS_reimplement/synth_u_vae_embed/synth_u_vae_embed/text2ts_msmdiffmv/0/real_text_samples.pt",
-        "/playpen/haochenz/VerbalTS_reimplement/synth_u_vae_embed/synth_u_vae_embed/text2ts_msmdiffmv/0/real_text_samples.pt"
+        "/playpen/haochenz/VerbalTS_reimplement/synth_u_vae_embed/text2ts_msmdiffmv/0/real_text_samples.pt",
+        "/playpen/haochenz/VerbalTS_reimplement/synth_u_vae_embed/text2ts_msmdiffmv/0/real_text_samples.pt"
     )
 
     calculate_disc_two_paths(
