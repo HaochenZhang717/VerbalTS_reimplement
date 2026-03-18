@@ -159,7 +159,7 @@ def main(args):
     mean_fid = np.mean(fid_array)
     std_fid = np.std(fid_array)
     print("\n==========================")
-    print(f"FID: {mean_fid:.6f} \pm {std_fid:.6f}")
+    print(f"FID: ${mean_fid:.6f} \pm {std_fid:.6f}$")
     print("==========================\n")
 
 
