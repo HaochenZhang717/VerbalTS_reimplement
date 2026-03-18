@@ -48,7 +48,11 @@ def train(training_stage, train_configs, model_diff_configs, model_cond_configs,
 
 
 def evaluate(training_stage, eval_configs, model_diff_configs, model_cond_configs, output_folder):
-    eval_configs["eval"]["model_path"] = os.path.join(output_folder, "ckpts/model_best_loss.pth")
+    if args.model_ckpt_name is not "none":
+        eval_configs["eval"]["model_path"] = os.path.join(output_folder, f"ckpts/{args.model_ckpt_name}.pth")
+    else:
+        eval_configs["eval"]["model_path"] = os.path.join(output_folder, f"ckpts/model_best_loss.pth")
+
 
     dataset = GenerationDataset(eval_configs["data"])
 
@@ -131,6 +135,7 @@ parser.add_argument("--epochs", type=int, default=200)
 parser.add_argument("--guide_w", type=float, default=1.0)
 parser.add_argument("--only_evaluate", type=bool, default=False)
 parser.add_argument("--samples_name", type=str, required=True)
+parser.add_argument("--model_ckpt_name", type=str, required=True)
 
 args = parser.parse_args()
 
