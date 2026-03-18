@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-# from models.diffusion.verbalts_qwen import VerbalTSQwen
+from models.diffusion.verbalts_qwen import VerbalTSQwen
 from models.diffusion.verbalts import VerbalTS
 from samplers import DDPMSampler, DDIMSampler
 import numpy as np
@@ -17,8 +17,8 @@ class UnConditionalGeneratorQwen(nn.Module):
 
     def _init_diff(self, configs):
         configs["device"] = self.device
-        # self.diff_model = VerbalTSQwen(configs, inputdim=1).to(self.device)
-        self.diff_model = VerbalTS(configs, inputdim=1).to(self.device)
+        self.diff_model = VerbalTSQwen(configs, inputdim=1).to(self.device)
+        # self.diff_model = VerbalTS(configs, inputdim=1).to(self.device)
 
         # self.diff_model = DiTModel(configs).to(self.device)
         self.num_steps = configs["num_steps"]
