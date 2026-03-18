@@ -70,6 +70,7 @@ class MyDataset:
         self,
         ts_path,
         caps_path,
+        vae_embed_path,
         text_embed_path,
         seq_len,
         num_channels,
@@ -80,6 +81,7 @@ class MyDataset:
         self.caps_path = caps_path
         self.seq_len = seq_len
         self.text_embed_path = text_embed_path
+        self.vae_embed_path = vae_embed_path
         self.num_segments = num_segments
         self.num_channels = num_channels
 
@@ -89,6 +91,7 @@ class MyDataset:
         return MySplit(
             ts_path=self.ts_path,
             caps_path=self.caps_path,
+            vae_embed_path=self.vae_embed_path,
             seq_len=self.seq_len,
             text_embed_path=self.text_embed_path,
             num_channels=self.num_channels,
@@ -102,6 +105,7 @@ class MySplit(Dataset):
         self,
         ts_path,
         caps_path,
+        vae_embed_path,
         text_embed_path,
         seq_len,
         num_channels,
@@ -131,6 +135,13 @@ class MySplit(Dataset):
             self.text_embed = torch.load(f"{text_embed_path}/{split}_embeds.pt", map_location="cpu")
         else:
             self.text_embed = torch.load(text_embed_path, map_location="cpu")
+
+        if not vae_embed_path.endswith('.pt'):
+            self.vae_embed = np.load(f"{vae_embed_path}/{split}_vae.npy", all_pickle=True)
+        else:
+            self.vae_embed = np.load(vae_embed_path, all_pickle=True)
+
+        self.vae_embed = torch.from_numpy(self.vae_embed)
 
         self.caps = None
         if self.caps_path != "none":
@@ -173,9 +184,10 @@ class MySplit(Dataset):
 
         if self.caps is not None:
             caps = self.caps[image_id]
-
         else:
             caps = "caps not loaded."
+
+        vae_embed = self.vae_embed[ts_id]
         # ------------------------
         # text embedding
         # ------------------------
@@ -198,6 +210,7 @@ class MySplit(Dataset):
             "image_id": image_id,
             "ts_id": ts_id,
             "caps": caps,
+            "vae_embed": vae_embed,
             # 'attn_mask': build_block_causal_mask(self.T, text_embed_all_segments.shape[0])
         }
 
@@ -207,6 +220,7 @@ class MySplit(Dataset):
     def collate_fn(batch):
         out = {}
         out["ts"] = torch.stack([b["ts"] for b in batch])
+        out["vae_embed"] = torch.stack([b["vae_embed"] for b in batch])
         out["ts_len"] = torch.tensor([b["ts_len"] for b in batch])
         out["text_embedding_all_segments"] = torch.stack([b["text_embedding_all_segments"] for b in batch])
         out["image_id"] = [b["image_id"] for b in batch]

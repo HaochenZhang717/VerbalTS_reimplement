@@ -33,7 +33,7 @@ LATENT_DIM=64
 for SPLIT in train valid test
 do
     DATA_PATH="${DATA_ROOT}/${SPLIT}_ts.npy"
-    SAVE_PATH="${SAVE_ROOT}/${SPLIT}_${EXP_NAME}.npy"
+    SAVE_PATH="${SAVE_ROOT}/${SPLIT}_vae.npy"
 
     echo "======================================"
     echo "Processing ${SPLIT} split"

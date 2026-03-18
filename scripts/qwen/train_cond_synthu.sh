@@ -2,7 +2,7 @@ export USE_CAUSAL=false
 CUDA_VISIBLE_DEVICES=6 python run_qwen.py \
     --cond_modal text \
     --training_stage finetune \
-    --save_folder ./verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv \
+    --save_folder ./verbalts_orig_save/synth_u_vae_embed/text2ts_msmdiffmv \
     --model_diff_config_path configs/synth_u_qwen/diff/model_text2ts_dep.yaml \
     --model_cond_config_path configs/synth_u_qwen/cond/text_msmdiffmv.yaml \
     --train_config_path configs/synth_u_qwen/train.yaml \

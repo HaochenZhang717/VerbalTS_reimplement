@@ -7,3 +7,6 @@ text:
   pretrain_model_dim: 2048
   vl_emb_hidden_dim: 256
   vl_emb: 64
+
+vae_embed:
+  n_latent_tokens: 32
