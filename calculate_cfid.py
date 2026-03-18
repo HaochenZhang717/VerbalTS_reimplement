@@ -80,6 +80,30 @@ def load_dataset(dict_path, dict_key, idx=-1):
 
 
 
+# =========================
+# Extract Embedding
+# =========================
+@torch.no_grad()
+def extract_embeddings(model, dataloader, device):
+
+    model.eval()
+
+    all_embeddings = []
+
+    for batch in dataloader:
+        x = batch[0].to(device)
+        with torch.no_grad():
+            out = model(x)
+        mu = out["mu"]   # (B, C, T', latent)
+
+        emb = mu
+
+        all_embeddings.append(emb.cpu())
+
+    return torch.cat(all_embeddings, dim=0).cpu().numpy()
+
+
+
 def main(args):
 
     device = args.device if torch.cuda.is_available() else "cpu"
