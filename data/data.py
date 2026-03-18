@@ -138,12 +138,11 @@ class MySplit(Dataset):
         else:
             self.text_embed = torch.load(text_embed_path, map_location="cpu")
 
-        if not vae_embed_path.endswith('.pt'):
+        self.vae_embed = None
+        if not vae_embed_path != "none":
             self.vae_embed = np.load(f"{vae_embed_path}/{split}_vae.npy", allow_pickle=True)
-        else:
-            self.vae_embed = np.load(vae_embed_path, allow_pickle=True)
+            self.vae_embed = torch.from_numpy(self.vae_embed)
 
-        self.vae_embed = torch.from_numpy(self.vae_embed)
 
         self.caps = None
         if self.caps_path != "none":
@@ -189,7 +188,11 @@ class MySplit(Dataset):
         else:
             caps = "caps not loaded."
 
-        vae_embed = self.vae_embed[ts_id]
+        if self.vae_embed is not None:
+            vae_embed = self.vae_embed[image_id]
+        else:
+            vae_embed = None
+
         # ------------------------
         # text embedding
         # ------------------------
@@ -223,7 +226,7 @@ class MySplit(Dataset):
     def collate_fn(batch):
         out = {}
         out["ts"] = torch.stack([b["ts"] for b in batch])
-        out["vae_embeds"] = torch.stack([b["vae_embeds"] for b in batch])
+        out["vae_embeds"] = torch.stack([b["vae_embeds"] for b in batch]) if batch[0]["vae_embeds"] is not None else None
         out["ts_len"] = torch.tensor([b["ts_len"] for b in batch])
         out["text_embedding_all_segments"] = torch.stack([b["text_embedding_all_segments"] for b in batch])
         out["image_id"] = [b["image_id"] for b in batch]

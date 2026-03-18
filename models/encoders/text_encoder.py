@@ -50,6 +50,7 @@ class CLIPTextEncoder(nn.Module):
             
         return text_co_emb
 
+
 class TextEncoder(nn.Module):
     def __init__(self, configs) -> None:
         super().__init__()

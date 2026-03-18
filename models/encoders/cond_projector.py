@@ -42,8 +42,6 @@ class TextProjectorMVarMScaleMStep(nn.Module):
         return out
 
 
-
-
 class AttrProjectorAvg(nn.Module):
     def __init__(self, dim_in=128, dim_hid=128, dim_out=128):
         super().__init__()

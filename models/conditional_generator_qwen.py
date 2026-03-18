@@ -110,8 +110,8 @@ class ConditionalGeneratorQwen(nn.Module):
         # print("ts.shape in _unpack_data_cond_gen", ts.shape)
         tp = torch.arange(T).repeat(B, 1).to(self.device).float()
         text_embedding_all_segments = batch["text_embedding_all_segments"].to(self.device).float()
-        vae_embeds = batch["vae_embeds"].to(self.device).float()
-        moment_embeds = batch["moment_embed"].to(self.device).float()
+        vae_embeds = batch["vae_embeds"].to(self.device).float() if batch["vae_embeds"] is not None else None
+        moment_embeds = batch["moment_embed"].to(self.device).float() if batch["moment_embed"] is not None else None
         return ts, tp, text_embedding_all_segments, vae_embeds, moment_embeds
 
     def generate(self, batch, n_samples, sampler="ddim"):
