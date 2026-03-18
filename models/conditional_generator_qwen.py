@@ -3,7 +3,7 @@ import torch.nn as nn
 
 # from models.encoders.attr_encoder import AttributeEncoder
 # from models.encoders.text_encoder import TextEncoder, CLIPTextEncoder
-# from models.encoders.cond_projector import TextProjectorMVarMScaleMStep, AttrProjectorAvg
+from models.encoders.cond_projector import TextProjectorMVarMScaleMStep, AttrProjectorAvg
 from models.unconditional_generator_qwen import UnConditionalGeneratorQwen
 from models.cttp.cttp_model import CTTP
 import time
@@ -33,9 +33,13 @@ class ConditionalGeneratorQwen(nn.Module):
             )
             self.cond_projector = self.cond_projector.to(self.device)
         elif cond_configs["cond_modal"] == "vae_embed":
-            self.cond_projector = nn.Sequential(
-                nn.Linear(cond_configs["vae_embed"]["n_latent_tokens"], 4 * cond_configs["vae_embed"]["n_latent_tokens"]),
-            )
+            self.cond_projector = TextProjectorMVarMScaleMStep(n_var=diff_configs["diffusion"]["n_var"],
+                                                               n_scale=diff_configs["diffusion"]["multipatch_num"],
+                                                               n_steps=diff_configs["diffusion"]["num_steps"],
+                                                               n_stages=cond_configs["text"]["num_stages"],
+                                                               dim_in=cond_configs["text"]["text_emb"],
+                                                               dim_out=diff_configs["diffusion"]["channels"])
+            self.cond_projector = self.cond_projector.to(self.device)
 
         else:
             raise NotImplementedError
@@ -66,11 +70,10 @@ class ConditionalGeneratorQwen(nn.Module):
         B = x.shape[0]
         if is_train:
             t = torch.randint(0, self.generator.num_steps, [B], device=self.device)
-            breakpoint()
             if self.cond_configs["cond_modal"] == "text":
                 attr_embed = self.cond_projector(attr_embed)  # for now we are not using projector.
             elif self.cond_configs["cond_modal"] == "vae_embed":
-                attr_embed = self.cond_projector(attr_embed.permute(0,2,1)).permute(0,2,1)
+                attr_embed = self.cond_projector(attr_embed, t)
             else:
                 raise NotImplementedError
             breakpoint()
