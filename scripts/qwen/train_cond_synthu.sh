@@ -74,7 +74,8 @@ do
         --clip_cache_path "" \
         --samples_name "samples_${ckpt_name_noext}.pt" \
         --model_ckpt_name ${ckpt_name} \
-        --only_evaluate True
+        --only_evaluate True \
+        --n_runs 1
 
 done
 
