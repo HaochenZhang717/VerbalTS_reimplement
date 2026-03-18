@@ -44,7 +44,7 @@ echo "Running FID Evaluation"
 echo "Experiment: ${EXP_NAME}"
 echo "=========================="
 
-python compute_fid.py \
+python calculate_fid.py \
     --real_path ${REAL_PATH} \
     --fake_path ${FAKE_PATH} \
     --ckpt_path ${CKPT_PATH} \
