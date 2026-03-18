@@ -7,11 +7,11 @@
 export CUDA_VISIBLE_DEVICES=3
 
 # 数据路径（改成你的）
-TRAIN_PATH="/playpen/haochenz/LitsDatasets/128_len_ts/synthetic_u/train_ts.npy"
-VAL_PATH="/playpen/haochenz/LitsDatasets/128_len_ts/synthetic_u/valid_ts.npy"
+TRAIN_PATH="/playpen/haochenz/LitsDatasets/128_len_ts/synthetic_m/train_ts.npy"
+VAL_PATH="/playpen/haochenz/LitsDatasets/128_len_ts/synthetic_m/valid_ts.npy"
 
 # 保存目录
-EXP_NAME="vae_synth_u"
+EXP_NAME="vae_synth_m"
 SAVE_DIR="./vae_ckpts/${EXP_NAME}"
 
 mkdir -p ${SAVE_DIR}

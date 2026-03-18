@@ -150,7 +150,6 @@ def train(args):
     # ===== model =====
     model = TimeSeriesVAE(
         input_dim=C,
-        output_dim=C,
         hidden_size=args.hidden_size,
         num_layers=args.num_layers,
         num_heads=args.num_heads,

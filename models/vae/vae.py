@@ -158,6 +158,8 @@ class TimeSeriesDecoder(nn.Module):
         hidden_size=128,
     ):
         super().__init__()
+
+        self.num_channels = output_dim
         # ===== latent → hidden =====
         self.input_proj = nn.Conv1d(latent_dim, hidden_size, kernel_size=1)
         # ===== CNN decoder =====
@@ -168,23 +170,27 @@ class TimeSeriesDecoder(nn.Module):
             nn.Conv1d(hidden_size, hidden_size // 2, kernel_size=5, padding=2),
             nn.ReLU(),
             nn.Upsample(scale_factor=2, mode='nearest'),
-            nn.Conv1d(hidden_size // 2, output_dim, kernel_size=5, padding=2),
+            nn.Conv1d(hidden_size // 2, 1, kernel_size=5, padding=2),
         )
 
     def forward(self, z):
         """
         z: (B, latent_dim, T/4)
         """
+        B, D, seq_len = z.shape
+        z = z.reshape(B, self.num_channels, -1, seq_len)
+        z = z.reshape(B * self.num_channels, -1, seq_len)
         x = self.input_proj(z)   # (B, hidden, T/4)
-        x = self.net(x)          # (B, C, T)
-        return x
+        x = self.net(x)          # (B*C, 1, T)
+        T = x.shape[-1]
+        x = x.reshape(B, self.num_channels, 1, T)
+        return x.squeeze(-2)
 
 
 class TimeSeriesVAE(nn.Module):
     def __init__(
         self,
         input_dim,
-        output_dim,
         hidden_size=128,
         num_layers=4,
         num_heads=4,
@@ -194,7 +200,7 @@ class TimeSeriesVAE(nn.Module):
         super().__init__()
 
         self.beta = beta
-
+        self.num_channels = input_dim
         # ===== Encoder =====
         self.encoder = TimeSeriesEncoder(
             input_dim=input_dim,
@@ -205,9 +211,10 @@ class TimeSeriesVAE(nn.Module):
         )
 
         # ===== Decoder =====
+        assert latent_dim % input_dim == 0, "latent_dim should be divisible by input_dim"
         self.decoder = TimeSeriesDecoder(
-            latent_dim=latent_dim,
-            output_dim=output_dim,
+            latent_dim=latent_dim//input_dim,
+            output_dim=input_dim,
             hidden_size=hidden_size,
         )
 
@@ -228,11 +235,9 @@ class TimeSeriesVAE(nn.Module):
         """
 
         mu, logvar = self.encoder(x)
-
         z = self.reparameterize(mu, logvar)
 
         recon = self.decoder(z.permute(0, 2, 1))
-
         return {
             "recon": recon,
             "mu": mu,
@@ -269,8 +274,7 @@ class TimeSeriesVAE(nn.Module):
 if __name__ == "__main__":
 
     model = TimeSeriesVAE(
-        input_dim=1,
-        output_dim=1,
+        input_dim=2,
         hidden_size=128,
         num_layers=2,
         num_heads=8,
@@ -278,7 +282,7 @@ if __name__ == "__main__":
         beta=0.001,  # KL权重
     )
 
-    x = torch.randn(8, 1, 128)
+    x = torch.randn(8, 2, 128)
 
     out = model(x)
 
