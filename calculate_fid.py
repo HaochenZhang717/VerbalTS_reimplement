@@ -89,15 +89,15 @@ def extract_embeddings(model, dataloader, device):
 
     for batch in tqdm(dataloader, desc="Extracting"):
         x = batch[0].to(device)
-
-        out = model(x)
+        with torch.no_grad():
+            out = model(x)
         mu = out["mu"]   # (B, C, T', latent)
 
         emb = mu
 
         all_embeddings.append(emb.cpu())
 
-    return torch.cat(all_embeddings, dim=0)
+    return torch.cat(all_embeddings, dim=0).cpu().numpy()
 
 
 # =========================
@@ -122,7 +122,7 @@ def main(args):
         num_layers=args.num_layers,
         num_heads=args.num_heads,
         latent_dim=args.latent_dim,
-    ).to(device)
+    ).to(device).eval()
 
     model.load_state_dict(torch.load(args.ckpt_path, map_location=device))
     print(f"Loaded checkpoint from {args.ckpt_path}")
