@@ -19,7 +19,7 @@ CUDA_VISIBLE_DEVICES=4 python run_qwen.py \
     --samples_name "fake_text_samples.pt" \
     --model_ckpt_name "model_best_loss.pth" \
     --n_runs 1 \
-    --only_evaluate
+    --only_evaluate True
 
 
 CUDA_VISIBLE_DEVICES=4 python run_qwen.py \
@@ -41,7 +41,7 @@ CUDA_VISIBLE_DEVICES=4 python run_qwen.py \
     --samples_name "real_text_samples.pt" \
     --model_ckpt_name "model_best_loss.pth" \
     --n_runs 1 \
-    --only_evaluate
+    --only_evaluate True
 
 #CUDA_VISIBLE_DEVICES=4 python run_qwen.py \
 #    --cond_modal vae_embed \
