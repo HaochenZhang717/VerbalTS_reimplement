@@ -102,7 +102,7 @@ def discriminative_score_metrics(ori_data, generated_data, input_size, device,):
     hidden_dim = max(int(input_size / 2), 32)
     iterations = 2000
     batch_size = 32
-
+    breakpoint()
     class Discriminator(nn.Module):
         def __init__(self, inp_dim, hidden_dim):
             super(Discriminator, self).__init__()

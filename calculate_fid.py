@@ -8,6 +8,8 @@ from tqdm import tqdm
 from models.vae.fid_vae import FIDVAE
 
 from scipy.linalg import sqrtm
+from metrics.discriminative_torch import discriminative_score_metrics
+
 
 def compute_fid(real, fake):
     """
@@ -221,6 +223,7 @@ def main(args):
     print(f"KID:  ${kid_array.mean():.6f} \\pm {kid_array.std():.6f}$")
     print(f"CMMD: ${cmmd_array.mean():.6f} \\pm {cmmd_array.std():.6f}$")
     print("==========================\n")
+
 
 
 if __name__ == "__main__":
