@@ -138,6 +138,8 @@ class MySplit(Dataset):
         else:
             self.text_embed = torch.load(text_embed_path, map_location="cpu")
 
+        print(self.text_embed)
+
         self.vae_embed = None
         if vae_embed_path != "none":
             self.vae_embed = np.load(f"{vae_embed_path}/{split}_vae.npy", allow_pickle=True)
@@ -192,7 +194,8 @@ class MySplit(Dataset):
             print(self.vae_embed.shape)
             print(image_id)
             print(ts_id)
-            breakpoint()
+            # print(self.)
+            # breakpoint()
             vae_embed = self.vae_embed[image_id]
         else:
             vae_embed = None
