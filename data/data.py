@@ -191,6 +191,7 @@ class MySplit(Dataset):
         if self.vae_embed is not None:
             print(self.vae_embed.shape)
             print(image_id)
+            print(ts_id)
             vae_embed = self.vae_embed[image_id]
         else:
             vae_embed = None
