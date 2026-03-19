@@ -197,8 +197,8 @@ def main(args):
             device,
         ) # (N, seq_len, dim)
 
-        # print("Real embeddings:", real_embeddings.shape)
-        # print("Fake embeddings:", fake_embeddings.shape)
+        print("Real embeddings:", real_embeddings.shape)
+        print("Fake embeddings:", fake_embeddings.shape)
 
         # ===== compute FID =====
         fid = compute_fid(real_embeddings, fake_embeddings)
