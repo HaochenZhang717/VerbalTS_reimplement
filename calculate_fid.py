@@ -197,9 +197,10 @@ def main(args):
             device,
         ) # (N, seq_len, dim)
 
-        print("Real embeddings:", real_embeddings.shape)
-        print("Fake embeddings:", fake_embeddings.shape)
-
+        # print("Real embeddings:", real_embeddings.shape)
+        # print("Fake embeddings:", fake_embeddings.shape)
+        num_embeds = real_embeddings.shape[0]
+        fake_embeddings = fake_embeddings[:num_embeds]
         # ===== compute FID =====
         fid = compute_fid(real_embeddings, fake_embeddings)
         kid = compute_kid(real_embeddings, fake_embeddings)
