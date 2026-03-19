@@ -140,11 +140,6 @@ def discriminative_score_metrics(ori_data, generated_data, input_size, device,):
 
         real_labels = torch.ones_like(y_logit_real)
         fake_labels = torch.zeros_like(y_logit_fake)
-        print(f"y_logit_real.shape: {y_logit_real.shape}")
-        print(f"y_logit_fake.shape: {y_logit_fake.shape}")
-        print(f"real_labels.shape: {real_labels.shape}")
-        print(f"fake_labels.shape: {fake_labels.shape}")
-        breakpoint()
         d_loss_real = nn.functional.binary_cross_entropy_with_logits(y_logit_real, real_labels).mean()
         d_loss_fake = nn.functional.binary_cross_entropy_with_logits(y_logit_fake, fake_labels).mean()
 
@@ -171,6 +166,9 @@ def discriminative_score_metrics(ori_data, generated_data, input_size, device,):
                     (np.ones([y_pred_real_curr.shape[0], ]), np.zeros([y_pred_fake_curr.shape[0], ])),
                     axis=0)
 
+                print(f"y_label_final: {y_label_final.shape}")
+                print(f"y_pred_final: {y_pred_final.shape}")
+                breakpoint()
                 # Compute the accuracy
                 acc = accuracy_score(y_label_final, (y_pred_final > 0.5).reshape(-1))
                 if best_accuracy < acc:
