@@ -165,10 +165,6 @@ def discriminative_score_metrics(ori_data, generated_data, input_size, device,):
                 y_label_final = np.concatenate(
                     (np.ones([y_pred_real_curr.shape[0], ]), np.zeros([y_pred_fake_curr.shape[0], ])),
                     axis=0)
-
-                print(f"y_label_final: {y_label_final.shape}")
-                print(f"y_pred_final: {y_pred_final.shape}")
-                breakpoint()
                 # Compute the accuracy
                 acc = accuracy_score(y_label_final, (y_pred_final > 0.5).reshape(-1))
                 if best_accuracy < acc:
