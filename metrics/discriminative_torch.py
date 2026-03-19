@@ -117,6 +117,10 @@ def discriminative_score_metrics(ori_data, generated_data, input_size, device,):
             _, last_hidden_state = self.rnn(x)
             y_hat_logit = self.linear(last_hidden_state)
             y_hat = nn.functional.sigmoid(y_hat_logit)
+            print(f"last hidden state: {last_hidden_state.shape}")
+            print(f"y_hat_logit: {y_hat_logit.shape}")
+            print(f"y_hat: {y_hat.shape}")
+            breakpoint()
             return y_hat_logit, y_hat
 
     model = Discriminator(input_size, hidden_dim).to(device)
