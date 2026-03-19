@@ -65,8 +65,8 @@ class ConditionalGeneratorDebug(nn.Module):
     def forward(self, batch, is_train):
         x, tp, attrs = self._unpack_data_cond_gen(batch)
         attr_emb_raw = self.attr_en(attrs)
-        print(attrs[0])
-        breakpoint()
+        # print(attrs[0])
+        # breakpoint()
         if self.cond_configs["cond_modal"] == "attr" or "diffstep" not in self.cond_configs["text"]["text_projector"]:
             attr_emb = self.cond_projector(attr_emb_raw)
 
