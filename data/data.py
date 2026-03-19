@@ -138,7 +138,6 @@ class MySplit(Dataset):
         else:
             self.text_embed = torch.load(text_embed_path, map_location="cpu")
 
-        print(self.text_embed)
 
         self.vae_embed = None
         if vae_embed_path != "none":
