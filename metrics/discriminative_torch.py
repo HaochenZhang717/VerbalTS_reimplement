@@ -115,12 +115,9 @@ def discriminative_score_metrics(ori_data, generated_data, input_size, device,):
 
         def forward(self, x):
             _, last_hidden_state = self.rnn(x)
+            last_hidden_state = last_hidden_state.squeeze(0)
             y_hat_logit = self.linear(last_hidden_state)
             y_hat = nn.functional.sigmoid(y_hat_logit)
-            print(f"last hidden state: {last_hidden_state.shape}")
-            print(f"y_hat_logit: {y_hat_logit.shape}")
-            print(f"y_hat: {y_hat.shape}")
-            breakpoint()
             return y_hat_logit, y_hat
 
     model = Discriminator(input_size, hidden_dim).to(device)
@@ -143,7 +140,11 @@ def discriminative_score_metrics(ori_data, generated_data, input_size, device,):
 
         real_labels = torch.ones_like(y_logit_real)
         fake_labels = torch.zeros_like(y_logit_fake)
-
+        print(f"y_logit_real.shape: {y_logit_real.shape}")
+        print(f"y_logit_fake.shape: {y_logit_fake.shape}")
+        print(f"real_labels.shape: {real_labels.shape}")
+        print(f"fake_labels.shape: {fake_labels.shape}")
+        breakpoint()
         d_loss_real = nn.functional.binary_cross_entropy_with_logits(y_logit_real, real_labels).mean()
         d_loss_fake = nn.functional.binary_cross_entropy_with_logits(y_logit_fake, fake_labels).mean()
 
@@ -166,9 +167,8 @@ def discriminative_score_metrics(ori_data, generated_data, input_size, device,):
                 y_pred_fake_curr = y_pred_fake_curr.detach().cpu().numpy()
 
                 y_pred_final = np.squeeze(np.concatenate((y_pred_real_curr, y_pred_fake_curr), axis=0))
-                breakpoint()
                 y_label_final = np.concatenate(
-                    (np.ones([y_pred_real_curr.shape[1], ]), np.zeros([y_pred_fake_curr.shape[1], ])),
+                    (np.ones([y_pred_real_curr.shape[0], ]), np.zeros([y_pred_fake_curr.shape[0], ])),
                     axis=0)
 
                 # Compute the accuracy
