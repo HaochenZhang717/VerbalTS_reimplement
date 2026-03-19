@@ -153,6 +153,8 @@ def discriminative_score_metrics(ori_data, generated_data, input_size, device,):
         if itt % 100 == 0:
             model.eval()
             with torch.no_grad():
+                print(f"test_x.shape: {test_x.shape}")
+                print(f"test_x_hat.shape: {test_x_hat.shape}")
                 test_x = torch.stack(test_x).to(device)
                 test_x_hat = torch.stack(test_x_hat).to(device)
                 _, y_pred_real_curr = model(test_x.float())
