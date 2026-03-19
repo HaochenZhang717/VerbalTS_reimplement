@@ -34,7 +34,8 @@ CUDA_VISIBLE_DEVICES=3 python run_debug.py \
     --batch_size 512 \
     --clip_cache_path "" \
     --samples_name "samples.pt" \
-    --only_evaluate True
+    --only_evaluate True \
+    --n_runs 1
 
   CUDA_VISIBLE_DEVICES=3 python run_debug.py \
     --cond_modal text \
@@ -53,4 +54,5 @@ CUDA_VISIBLE_DEVICES=3 python run_debug.py \
     --batch_size 512 \
     --clip_cache_path "" \
     --samples_name "samples.pt" \
-    --only_evaluate True
+    --only_evaluate True \
+    --n_runs 1
