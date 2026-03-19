@@ -127,6 +127,7 @@ def discriminative_score_metrics(ori_data, generated_data, input_size, device,):
     train_loss = 0.0
 
     model.train()
+    best_accuracy = 0.5
     # Training step
     for itt in range(iterations):
         # Batch setting
@@ -149,26 +150,27 @@ def discriminative_score_metrics(ori_data, generated_data, input_size, device,):
         optimizer.step()
 
         train_loss += d_loss.cpu().item()
+        if itt % 100 == 0:
+            model.eval()
+            with torch.no_grad():
+                test_x = torch.stack(test_x).to(device)
+                test_x_hat = torch.stack(test_x_hat).to(device)
+                _, y_pred_real_curr = model(test_x.float())
+                _, y_pred_fake_curr = model(test_x_hat.float())
 
-    model.eval()
-    with (torch.no_grad()):
-        test_x = torch.stack(test_x).to(device)
-        test_x_hat = torch.stack(test_x_hat).to(device)
-        _, y_pred_real_curr = model(test_x.float())
-        _, y_pred_fake_curr = model(test_x_hat.float())
+                y_pred_real_curr = y_pred_real_curr.detach().cpu().numpy()
+                y_pred_fake_curr = y_pred_fake_curr.detach().cpu().numpy()
 
-        y_pred_real_curr = y_pred_real_curr.detach().cpu().numpy()
-        y_pred_fake_curr = y_pred_fake_curr.detach().cpu().numpy()
+                y_pred_final = np.squeeze(np.concatenate((y_pred_real_curr, y_pred_fake_curr), axis=0))
+                y_label_final = np.concatenate(
+                    (np.ones([y_pred_real_curr.shape[1], ]), np.zeros([y_pred_fake_curr.shape[1], ])),
+                    axis=0)
 
-        y_pred_final = np.squeeze(np.concatenate((y_pred_real_curr, y_pred_fake_curr), axis=0))
-        y_label_final = np.concatenate(
-            (np.ones([y_pred_real_curr.shape[1], ]), np.zeros([y_pred_fake_curr.shape[1], ])),
-            axis=0)
-
-        # Compute the accuracy
-        acc = accuracy_score(y_label_final, (y_pred_final > 0.5).reshape(-1))
-        discriminative_score = np.abs(0.5 - acc)
-
+                # Compute the accuracy
+                acc = accuracy_score(y_label_final, (y_pred_final > 0.5).reshape(-1))
+                if best_accuracy < acc:
+                    best_accuracy = acc
+    discriminative_score = np.abs(0.5 - best_accuracy)
     return discriminative_score
 
 
