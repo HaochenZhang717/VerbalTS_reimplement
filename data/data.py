@@ -191,12 +191,7 @@ class MySplit(Dataset):
             caps = "caps not loaded."
 
         if self.vae_embed is not None:
-            print(self.vae_embed.shape)
-            print(image_id)
-            print(ts_id)
-            # print(self.)
-            # breakpoint()
-            vae_embed = self.vae_embed[image_id]
+            vae_embed = self.vae_embed[ts_id]
         else:
             vae_embed = None
 
