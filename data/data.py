@@ -192,6 +192,7 @@ class MySplit(Dataset):
             print(self.vae_embed.shape)
             print(image_id)
             print(ts_id)
+            breakpoint()
             vae_embed = self.vae_embed[image_id]
         else:
             vae_embed = None
