@@ -102,7 +102,7 @@ def discriminative_score_metrics(ori_data, generated_data, input_size, device,):
     hidden_dim = max(int(input_size / 2), 32)
     iterations = 2000
     batch_size = 32
-    breakpoint()
+
     class Discriminator(nn.Module):
         def __init__(self, inp_dim, hidden_dim):
             super(Discriminator, self).__init__()
@@ -162,6 +162,7 @@ def discriminative_score_metrics(ori_data, generated_data, input_size, device,):
                 y_pred_fake_curr = y_pred_fake_curr.detach().cpu().numpy()
 
                 y_pred_final = np.squeeze(np.concatenate((y_pred_real_curr, y_pred_fake_curr), axis=0))
+                breakpoint()
                 y_label_final = np.concatenate(
                     (np.ones([y_pred_real_curr.shape[1], ]), np.zeros([y_pred_fake_curr.shape[1], ])),
                     axis=0)
@@ -170,6 +171,7 @@ def discriminative_score_metrics(ori_data, generated_data, input_size, device,):
                 acc = accuracy_score(y_label_final, (y_pred_final > 0.5).reshape(-1))
                 if best_accuracy < acc:
                     best_accuracy = acc
+            model.train()
     discriminative_score = np.abs(0.5 - best_accuracy)
     return discriminative_score
 
