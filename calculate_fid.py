@@ -32,7 +32,56 @@ def compute_fid(real, fake):
 
     return float(fid)
 
+# =========================
+# KID (Kernel Inception Distance)
+# =========================
+def compute_kid(real, fake):
+    """
+    real, fake: (N, D)
+    unbiased MMD^2 with polynomial kernel
+    """
 
+    def polynomial_kernel(a, b):
+        return ((a @ b.T) / a.shape[1] + 1) ** 3
+
+    K_XX = polynomial_kernel(real, real)
+    K_YY = polynomial_kernel(fake, fake)
+    K_XY = polynomial_kernel(real, fake)
+
+    n = real.shape[0]
+    m = fake.shape[0]
+
+    kid = (
+        (K_XX.sum() - np.trace(K_XX)) / (n * (n - 1))
+        + (K_YY.sum() - np.trace(K_YY)) / (m * (m - 1))
+        - 2 * K_XY.mean()
+    )
+
+    return float(kid)
+
+
+# =========================
+# CMMD (Conditional MMD / Context MMD)
+# =========================
+def compute_cmmd(real, fake):
+    """
+    real, fake: (N, D)
+    使用 RBF kernel 的 MMD（更稳定）
+    """
+
+    def rbf_kernel(a, b, sigma=1.0):
+        a_norm = (a ** 2).sum(axis=1).reshape(-1, 1)
+        b_norm = (b ** 2).sum(axis=1).reshape(1, -1)
+        dist = a_norm + b_norm - 2 * a @ b.T
+        return np.exp(-dist / (2 * sigma ** 2))
+
+    K_XX = rbf_kernel(real, real)
+    K_YY = rbf_kernel(fake, fake)
+    K_XY = rbf_kernel(real, fake)
+
+    cmmd = K_XX.mean() + K_YY.mean() - 2 * K_XY.mean()
+
+    return float(cmmd)
 # =========================
 # Args
 # =========================
@@ -93,10 +142,8 @@ def extract_embeddings(model, dataloader, device):
         x = batch[0].to(device)
         with torch.no_grad():
             out = model(x)
-        mu = out["mu"]   # (B, C, T', latent)
-
+        mu = out["mu"]
         emb = mu
-
         all_embeddings.append(emb.cpu())
 
     return torch.cat(all_embeddings, dim=0).cpu().numpy()
@@ -137,6 +184,8 @@ def main(args):
 
 
     fid_list = []
+    kid_list = []
+    cmmd_list = []
     for i in range(10):
         fake_dataset = load_dataset(args.fake_path, "sampled_ts",idx=i)
         fake_dataloader = DataLoader(fake_dataset, batch_size=args.batch_size, shuffle=False)
@@ -153,16 +202,23 @@ def main(args):
 
         # ===== compute FID =====
         fid = compute_fid(real_embeddings, fake_embeddings)
+        kid = compute_kid(real_embeddings, fake_embeddings)
+        cmmd = compute_cmmd(real_embeddings, fake_embeddings)
+
         fid_list.append(fid)
+        kid_list.append(kid)
+        cmmd_list.append(cmmd)
 
     fid_array = np.array(fid_list)
-    mean_fid = np.mean(fid_array)
-    std_fid = np.std(fid_array)
+    kid_array = np.array(kid_list)
+    cmmd_array = np.array(cmmd_list)
 
     print("\n==========================")
     print("real_path: {}".format(args.real_path))
     print("fake_path: {}".format(args.fake_path))
-    print(f"FID: ${mean_fid:.4f} \pm {std_fid:.4f}$")
+    print(f"FID:  ${fid_array.mean():.4f} \\pm {fid_array.std():.4f}$")
+    print(f"KID:  ${kid_array.mean():.6f} \\pm {kid_array.std():.6f}$")
+    print(f"CMMD: ${cmmd_array.mean():.6f} \\pm {cmmd_array.std():.6f}$")
     print("==========================\n")
 
 
