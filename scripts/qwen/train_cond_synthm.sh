@@ -17,6 +17,7 @@ CUDA_VISIBLE_DEVICES=4 python run_qwen.py \
     --batch_size 512 \
     --clip_cache_path "" \
     --samples_name "fake_text_samples.pt" \
+    --model_ckpt_name "model_best_loss.pth" \
     --n_runs 1 \
     --only_evalaute
 
@@ -38,6 +39,7 @@ CUDA_VISIBLE_DEVICES=4 python run_qwen.py \
     --batch_size 512 \
     --clip_cache_path "" \
     --samples_name "real_text_samples.pt" \
+    --model_ckpt_name "model_best_loss.pth" \
     --n_runs 1 \
     --only_evalaute
 
