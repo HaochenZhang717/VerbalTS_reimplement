@@ -15,5 +15,5 @@ CUDA_VISIBLE_DEVICES=7 python run_debug.py \
     --batch_size 512 \
     --clip_cache_path "" \
     --only_evaluate True \
-    --samples_name "real_text_samples.pt" \
+    --samples_name "fake_text_samples.pt" \
     --n_runs 1
