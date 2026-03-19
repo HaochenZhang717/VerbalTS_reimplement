@@ -43,6 +43,7 @@ def calculate_disc_two_paths(real_path, fake_path, save_path="disc_results.jsonl
                 device,
             )
             disc_score_list.append(discriminative_score)
+            print(discriminative_score)
 
     disc_score_arr = np.array(disc_score_list)
     disc_mean = float(disc_score_arr.mean())
