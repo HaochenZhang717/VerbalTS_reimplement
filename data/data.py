@@ -127,7 +127,7 @@ class MySplit(Dataset):
         if ts_path != "none":
             self.ts = np.load(f"{ts_path}/{split}_ts.npy", allow_pickle=True)  # (N,T,C)
             self.N, self.T, self.C = self.ts.shape
-            self.moment_embed = np.load(f"{ts_path}/{split}_moment_embeds.npy", allow_pickle=True)
+            # self.moment_embed = np.load(f"{ts_path}/{split}_moment_embeds.npy", allow_pickle=True)
         else:
             self.N = -1
             self.T = seq_len
