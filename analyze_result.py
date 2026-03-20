@@ -94,18 +94,23 @@ def calculate_pred_two_paths(real_path, fake_path, look_real=False, save_path="p
     print(real.shape)
     print(samples_dict["sampled_ts"].shape)
     for i in range(samples_dict["sampled_ts"].shape[0]):
-        if not look_real:
-            fake = samples_dict["sampled_ts"][i, :num_samples]
-        else:
-            fake = real_dict["real_ts"][i, :num_samples]
+        fake = samples_dict["sampled_ts"][i, :num_samples]
         if fake.shape[1] > fake.shape[2]:
             fake = fake.permute(0,2,1)
         for _ in range(1):
-            pred_score = predictive_score_metrics(
-                real.permute(0,2,1),
-                fake.permute(0,2,1),
-                device,
-            )
+            if not look_real:
+                pred_score = predictive_score_metrics(
+                    real.permute(0,2,1),
+                    fake.permute(0,2,1),
+                    device,
+                )
+            else:
+                pred_score = predictive_score_metrics(
+                    real.permute(0, 2, 1),
+                    real.permute(0, 2, 1),
+                    device,
+                )
+                print(pred_score)
             pred_score_list.append(pred_score)
             # print(discriminative_score)
 
