@@ -107,7 +107,7 @@ class ConditionalGeneratorQwenV2(nn.Module):
                 dim_out=diff_configs["diffusion"]["channels"]
             )
             self.cond_projector = self.cond_projector.to(self.device)
-            self.attr_en = QwenTextEncoder(cond_configs["text"]).to(self.device)
+            # self.attr_en = QwenTextEncoder(cond_configs["text"]).to(self.device)
 
 
         elif cond_configs["cond_modal"] == "vae_embed":
