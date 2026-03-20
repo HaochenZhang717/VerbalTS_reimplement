@@ -143,41 +143,17 @@ class ConditionalGeneratorQwenV2(nn.Module):
         B, C, S = text_caps_base_shape
         attr_embed_raw = attr_embed_raw.view(B, C, S, attr_len, attr_dim)
 
-        # B, C, T = x.shape
-        # print(f"moment_embed.shape = {moment_embeds.shape}")
-        # print(f"vae_embed.shape = {vae_embeds.shape}")
-
-        # if self.cond_configs["cond_modal"] == "text":
-        #     attr_embed_raw = text_embedding_all_segments
-        # elif self.cond_configs["cond_modal"] == "vae_embed":
-        #     # attr_embed_raw = vae_embeds
-        #     attr_embed_raw = moment_embeds.squeeze(1)
-        # else:
-        #     raise NotImplementedError
-
-
         B = x.shape[0]
         if is_train:
             t = torch.randint(0, self.generator.num_steps, [B], device=self.device)
-            if self.cond_configs["cond_modal"] == "text":
-                attr_embed = self.cond_projector(attr_embed_raw)  # for now we are not using projector.
-            elif self.cond_configs["cond_modal"] == "vae_embed":
-                attr_embed = self.cond_projector(attr_embed_raw, t)
-            else:
-                raise NotImplementedError
-
+            attr_embed = self.cond_projector(attr_embed_raw, t)  # for now we are not using projector.
             loss = self.generator._noise_estimation_loss(x, tp, attr_embed, t)
             return loss
 
         loss_dict = {}
         for t in range(self.generator.num_steps):
             t = (torch.ones(B, device=self.device) * t).long()
-            if self.cond_configs["cond_modal"] == "text":
-                attr_embed = self.cond_projector(attr_embed_raw)  # for now we are not using projector.
-            elif self.cond_configs["cond_modal"] == "vae_embed":
-                attr_embed = self.cond_projector(attr_embed_raw, t)
-            else:
-                raise NotImplementedError
+            attr_embed = self.cond_projector(attr_embed_raw, t)  # for now we are not using projector.
             tmp_loss_dict = self.generator._noise_estimation_loss(x, tp, attr_embed, t)
             for k in tmp_loss_dict:
                 if k in loss_dict.keys():
@@ -216,19 +192,14 @@ class ConditionalGeneratorQwenV2(nn.Module):
 
     @torch.no_grad()
     def generate_text(self, batch, n_samples, sampler="ddim"):
-
-        ts, tp, text_embedding_all_segments, vae_embeds, moment_embeds = self._unpack_data_cond_gen(batch)
+        ts, tp, text_embedding_all_segments, vae_embeds, moment_embeds, text_caps, text_caps_base_shape\
+            = self._unpack_data_cond_gen(batch)
         B, C, T = ts.shape
 
-        if self.cond_configs["cond_modal"] == "text":
-            attr_embed_raw = text_embedding_all_segments
-            # print(attr_embed_raw.shape)
-            # breakpoint()
-        elif self.cond_configs["cond_modal"] == "vae_embed":
-            # attr_embed_raw = vae_embeds
-            attr_embed_raw = moment_embeds
-        else:
-            raise NotImplementedError
+        attr_embed_raw = self.attr_en(text_caps)
+        attr_len, attr_dim = attr_embed_raw.shape[-2:]
+        B, C, S = text_caps_base_shape
+        attr_embed_raw = attr_embed_raw.view(B, C, S, attr_len, attr_dim)
 
         samples = []
         for i in range(n_samples):
@@ -237,13 +208,7 @@ class ConditionalGeneratorQwenV2(nn.Module):
             for t in range(self.generator.num_steps - 1, -1, -1):
                 noise = torch.randn_like(x)
                 t = (torch.ones(B, device=self.device) * t).long()
-
-                if self.cond_configs["cond_modal"] == "text":
-                    attr_embed = self.cond_projector(attr_embed_raw)  # for now we are not using projector.
-                elif self.cond_configs["cond_modal"] == "vae_embed":
-                    attr_embed = self.cond_projector(attr_embed_raw, t)
-                else:
-                    raise NotImplementedError
+                attr_embed = self.cond_projector(attr_embed_raw, t)
 
                 pred_noise, _ = self.generator.predict_noise(x, tp, attr_embed, t)
                 if sampler == "ddpm":
