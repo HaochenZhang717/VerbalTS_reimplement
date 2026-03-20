@@ -39,8 +39,12 @@ class CustomSplit(Dataset):
         # attrs = np.load(os.path.join(self.folder, self.split+"_attrs_idx.npy"))  # [n_samples, n_attrs]
         caps = np.load(os.path.join(self.folder, self.split+fr"_text_caps.npy"), allow_pickle=True)
 
+        verbalts_qwen_embed = torch.load(os.path.join(self.folder, self.split+fr"_verbalts_qwen_embeds.npy"), weights_only=False)
+        verbalts_qwen_embed = verbalts_qwen_embed["embeddings"]
+
         # self.ts, self.attrs, self.caps = ts, attrs, caps
         self.ts, self.caps = ts, caps
+        self.verbalts_qwen_embed = verbalts_qwen_embed
         self.n_samples = self.ts.shape[0]
         self.n_steps = self.ts.shape[1]
         self.n_attrs = self.attrs.shape[1]
@@ -53,12 +57,14 @@ class CustomSplit(Dataset):
             tmp_ts = tmp_ts[...,np.newaxis]
         return {"ts": tmp_ts,
                 "ts_len": tmp_ts.shape[0],
+                "verbal_qwen_embed": self.verbalts_qwen_embed[cap_id],
                 # "attrs": self.attrs[idx],
                 "cap": self.caps[idx][cap_id],
                 "tp": self.time_point}
 
     def __len__(self):
         return self.n_samples
+
 
 class MyDataset:
     """
