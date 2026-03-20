@@ -389,7 +389,10 @@ class VerbalTSQwenV4(nn.Module):
             patch_length = self.config["base_patch"]*self.config["L_patch_len"]**i
             print(f"attr_emb_raw.shape = {attr_emb_raw.shape}")
             # attr_emb_list.append(attr_emb_raw.repeat_interleave(32//patch_length, dim=-1))
-            attr_emb_patch = self.attr_embed_upsample[i](attr_emb_raw.permute(0, 2, 3, 1)).reshape(B_raw, n_var, -1, self.channels)
+            # attr_emb_patch = self.attr_embed_upsample[i](attr_emb_raw.permute(0, 2, 3, 1)).reshape(B_raw, n_var, -1, self.channels)
+            attr_emb_patch = self.attr_embed_upsample[i](attr_emb_raw.permute(0, 2, 3, 1))
+            print(f"attr_emb_patch.shape = {attr_emb_patch.shape}")
+            breakpoint()
             attr_emb_patch = attr_emb_patch.permute(0,3,1,2) # [512, 1, 4n, 64] -> [512, 64, 1, 4n]
             attr_emb_list.append(attr_emb_patch)
             print(f"attr_emb_patch.shape = {attr_emb_patch.shape}")
