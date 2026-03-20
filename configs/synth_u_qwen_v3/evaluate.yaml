@@ -1,6 +1,6 @@
 ### Dataset ###
 data:
-  name: mine
+  name: qwen_v3
   ts_path: /playpen-shared/haochenz/LitsDatasets/128_len_ts/synthetic_u
   caps_path: /playpen-shared/haochenz/LitsDatasets/128_len_caps_one_per_channel_0309/synth_u/
   text_embed_path: /playpen-shared/haochenz/LitsDatasets/128_len_caps_one_per_channel_0309/synth_u/

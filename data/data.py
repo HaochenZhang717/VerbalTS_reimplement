@@ -279,3 +279,186 @@ class MySplit(Dataset):
         # out["attn_mask"] = torch.stack([b["attn_mask"] for b in batch])
 
         return out
+
+
+
+class QwenV3Dataset:
+    """
+    Wrapper class so that the block-causal dataset fits
+    the GenerationDataset interface.
+    """
+
+    def __init__(
+        self,
+        ts_path,
+        caps_path,
+        vae_embed_path,
+        text_embed_path,
+        seq_len,
+        num_channels,
+        num_segments,
+        **kwargs
+    ):
+        self.ts_path = ts_path
+        self.caps_path = caps_path
+        self.seq_len = seq_len
+        self.text_embed_path = text_embed_path
+        self.vae_embed_path = vae_embed_path
+        self.num_segments = num_segments
+        self.num_channels = num_channels
+
+        self.attr_n_ops = None
+
+    def get_split(self, split, text_type=None, *args):
+        return QwenV3Split(
+            ts_path=self.ts_path,
+            caps_path=self.caps_path,
+            vae_embed_path=self.vae_embed_path,
+            seq_len=self.seq_len,
+            text_embed_path=self.text_embed_path,
+            num_channels=self.num_channels,
+            num_segments=self.num_segments,
+            split=split,
+        )
+
+
+class QwenV3Split(Dataset):
+    def __init__(
+        self,
+        ts_path,
+        caps_path,
+        vae_embed_path,
+        text_embed_path,
+        seq_len,
+        num_channels,
+        num_segments,
+        split="train",
+    ):
+        super().__init__()
+
+        self.split = split
+        self.num_segments = num_segments
+        self.num_channels = num_channels
+
+        self.caps_path = caps_path
+        # ------------------------
+        # load data
+        # ------------------------
+        self.ts = None
+        self.moment_embed = None
+        if ts_path != "none":
+            self.ts = np.load(f"{ts_path}/{split}_ts.npy", allow_pickle=True)  # (N,T,C)
+            self.N, self.T, self.C = self.ts.shape
+        else:
+            self.N = -1
+            self.T = seq_len
+            self.C = num_channels
+
+        if not text_embed_path.endswith('.pt'):
+            self.text_embed = torch.load(f"{text_embed_path}/{split}_embeds.pt", map_location="cpu")
+        else:
+            self.text_embed = torch.load(text_embed_path, map_location="cpu")
+
+
+        self.vae_embed = None
+        if vae_embed_path != "none":
+            self.vae_embed = np.load(f"{vae_embed_path}/{split}_vae.npy", allow_pickle=True)
+            self.vae_embed = torch.from_numpy(self.vae_embed)
+
+
+        self.caps = None
+        if self.caps_path != "none":
+            if not self.caps_path.endswith(".jsonl"):
+                caps_dict = {}
+                with open(f"{self.caps_path}/{split}_caps_ready.jsonl", "r") as f:
+                    for line in f:
+                        item = json.loads(line)
+                        caps_dict[item["id"]] = item["captions"]
+                self.caps = caps_dict
+            else:
+                caps_dict = {}
+                with open(self.caps_path, "r") as f:
+                    for line in f:
+                        item = json.loads(line)
+                        caps_dict[item["id"]] = item["captions"]
+                self.caps = caps_dict
+
+        assert self.T % self.num_segments == 0
+
+        self.segment_length = self.T // self.num_segments
+
+        self.ids = sorted(
+            self.text_embed.keys(),
+            key=lambda x: int(x.replace("image", "")),
+        )
+
+        self.block_ids = list(range(self.num_segments))
+        self.num_block_choices = len(self.block_ids)
+
+        print(
+            f"[CausalSplit:{self.split}] "
+            f"N={self.N}, T={self.T}, C={self.C}, segments={self.num_segments}"
+        )
+
+    def __len__(self):
+        return len(self.ids)
+
+    def __getitem__(self, idx):
+        image_id = self.ids[idx]
+        ts_id = int(image_id.replace("image", ""))
+
+        if self.ts is not None:
+            ts = self.ts[ts_id]  # (T,C)
+            ts = torch.from_numpy(ts).float().transpose(0, 1)  # (C,T)
+        else:
+            ts = torch.zeros((self.C, self.T)).float()
+
+        if self.caps is not None:
+            caps = self.caps[image_id]
+        else:
+            caps = "caps not loaded."
+
+        if self.vae_embed is not None:
+            vae_embed = self.vae_embed[ts_id]
+        else:
+            vae_embed = None
+
+        # ------------------------
+        # text embedding
+        # ------------------------
+        # print("ts shape in getitem ", ts.shape)
+        text_embed_all_segments = []
+        for target_block in self.block_ids:
+            channel_embeds = []
+            for c in range(self.C):
+                key = f"seg{target_block+1}_channel{c}"
+                emb = self.text_embed[image_id][key]
+                channel_embeds.append(emb)
+            text_embed = torch.stack(channel_embeds, dim=0)  # (C,D)
+            text_embed_all_segments.append(text_embed)
+        text_embed_all_segments = torch.stack(text_embed_all_segments, dim=0) # (num_segments,C,D)
+
+        item = {
+            "ts": ts,
+            "ts_len": self.T,
+            "text_embedding_all_segments": text_embed_all_segments,
+            "image_id": image_id,
+            "ts_id": ts_id,
+            "caps": caps,
+            "vae_embeds": vae_embed,
+            "moment_embed": torch.from_numpy(self.moment_embed[idx]).float() if self.moment_embed is not None else None,
+        }
+        return item
+
+    @staticmethod
+    def collate_fn(batch):
+        out = {}
+        out["ts"] = torch.stack([b["ts"] for b in batch])
+        out["vae_embeds"] = torch.stack([b["vae_embeds"] for b in batch]) if batch[0]["vae_embeds"] is not None else None
+        out["ts_len"] = torch.tensor([b["ts_len"] for b in batch])
+        out["text_embedding_all_segments"] = torch.stack([b["text_embedding_all_segments"] for b in batch])
+        out["image_id"] = [b["image_id"] for b in batch]
+        out["ts_id"] = torch.tensor([b["ts_id"] for b in batch])
+        out["caps"] = [b["caps"] for b in batch]
+        out["moment_embed"] = torch.stack([b["moment_embed"] for b in batch]) if batch[0]["moment_embed"] is not None else None
+        return out
