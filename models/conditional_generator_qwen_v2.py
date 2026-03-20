@@ -137,7 +137,7 @@ class ConditionalGeneratorQwenV2(nn.Module):
     def forward(self, batch, is_train):
         # x, tp, text_embedding_all_segments, moment_embeds = self._unpack_data_cond_gen(batch)
         x, tp, attr_embed_raw = self._unpack_data_cond_gen(batch)
-        print(attr_embed_raw.shape)
+        # print(attr_embed_raw.shape)
         attr_embed_raw = self.attr_en(attr_embed_raw)
         # attr_len, attr_dim = attr_embed_raw.shape[-2:]
         # B, C, S = text_caps_base_shape
