@@ -97,8 +97,8 @@ def moment_discriminative_score_metrics(ori_data, generated_data, input_size, de
 def discriminative_score_metrics(ori_data, generated_data, input_size, device,):
     # Basic Parameters
     ori_data, generated_data = torch.Tensor(ori_data), torch.Tensor(generated_data)
-    print(f"ori_data.shape: {ori_data.shape}")
-    print(f"generated_data.shape: {generated_data.shape}")
+    # print(f"ori_data.shape: {ori_data.shape}")
+    # print(f"generated_data.shape: {generated_data.shape}")
     ## Builde a post-hoc RNN discriminator network
     # Network parameters
     hidden_dim = max(int(input_size / 2), 32)

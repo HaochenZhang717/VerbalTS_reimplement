@@ -24,10 +24,13 @@ from sklearn.metrics import mean_absolute_error
 
 
 class CNNLSTMPredictor(nn.Module):
-    def __init__(self, input_dim=1, hidden_dim=64, cnn_dim=32):
+    def __init__(self, input_dim=1, hidden_dim=64, cnn_dim=32, horizon=10):
         super().__init__()
 
-        # ===== CNN（提取局部pattern）=====
+        self.horizon = horizon
+        self.input_dim = input_dim
+
+        # ===== CNN =====
         self.conv = nn.Sequential(
             nn.Conv1d(input_dim, cnn_dim, kernel_size=3, padding=1),
             nn.ReLU(),
@@ -35,7 +38,7 @@ class CNNLSTMPredictor(nn.Module):
             nn.ReLU(),
         )
 
-        # ===== LSTM（建模时序）=====
+        # ===== LSTM =====
         self.lstm = nn.LSTM(
             input_size=cnn_dim,
             hidden_size=hidden_dim,
@@ -43,47 +46,55 @@ class CNNLSTMPredictor(nn.Module):
             batch_first=True
         )
 
-        # ===== 输出层 =====
-        self.fc = nn.Linear(hidden_dim, input_dim)
+        # ⭐ 多步输出
+        self.fc = nn.Linear(hidden_dim, input_dim * horizon)
 
     def forward(self, x):
         # x: (B, T, 1)
 
-        # 👉 CNN需要 (B, C, T)
-        x = x.permute(0, 2, 1)      # (B, 1, T)
+        B = x.shape[0]
 
+        # CNN
+        x = x.permute(0, 2, 1)      # (B, 1, T)
         x = self.conv(x)            # (B, cnn_dim, T)
 
-        # 👉 LSTM需要 (B, T, C)
+        # LSTM
         x = x.permute(0, 2, 1)      # (B, T, cnn_dim)
+        _, (h_n, _) = self.lstm(x)  # (1, B, hidden)
 
-        out, _ = self.lstm(x)       # (B, T, hidden_dim)
+        h = h_n.squeeze(0)          # (B, hidden_dim)
 
-        y_hat = self.fc(out)        # (B, T, 1)
+        # ⭐ 预测未来 horizon 步
+        y_hat = self.fc(h)          # (B, horizon * dim)
+        y_hat = y_hat.view(B, self.horizon, self.input_dim)
 
         return y_hat
-
 
 def predictive_score_metrics(
     ori_data,
     generated_data,
     device,
+    horizon=10,
     iterations=2000,
     batch_size=128,
     lr=1e-3,
 ):
 
-    # Convert to tensor
-    # ori_data = torch.tensor(ori_data, dtype=torch.float32).to(device)
-    # generated_data = torch.tensor(generated_data, dtype=torch.float32).to(device)
-
+    # ===== tensor =====
     ori_data = ori_data.to(device=device, dtype=torch.float32)
     generated_data = generated_data.to(device=device, dtype=torch.float32)
 
-    N, T, dim = generated_data.shape  # should be (N, 128, 1)
+    N, T, dim = generated_data.shape
+    assert T > horizon, "Sequence length must be > horizon"
 
-    model = CNNLSTMPredictor(input_dim=dim, hidden_dim=64, cnn_dim=64).to(device)
-    optimizer = optim.Adam(model.parameters(), lr=lr)
+    model = CNNLSTMPredictor(
+        input_dim=dim,
+        hidden_dim=64,
+        cnn_dim=32,
+        horizon=horizon
+    ).to(device)
+
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     loss_fn = nn.L1Loss()
 
     # ==========================
@@ -94,12 +105,12 @@ def predictive_score_metrics(
     for _ in range(iterations):
 
         idx = torch.randperm(N)[:batch_size]
-        batch = generated_data[idx]  # (B, T, 1)
+        batch = generated_data[idx]   # (B, T, 1)
 
-        X = batch[:, :-1, :]  # (B, T-1, 1)
-        Y = batch[:, 1:, :]   # (B, T-1, 1)
+        X = batch[:, :-horizon, :]    # (B, T-H, 1)
+        Y = batch[:, -horizon:, :]    # ⭐ 未来 H 步
 
-        pred = model(X)
+        pred = model(X)               # (B, H, 1)
 
         loss = loss_fn(pred, Y)
 
@@ -111,26 +122,18 @@ def predictive_score_metrics(
     # Test on real data
     # ======================
     model.eval()
-    MAE_temp = 0.0
 
     with torch.no_grad():
-        N_test = ori_data.shape[0]
 
-        for i in range(N_test):
-            seq = ori_data[i:i+1]  # (1, T, 1)
+        X = ori_data[:, :-horizon, :]
+        Y = ori_data[:, -horizon:, :]
 
-            X = seq[:, :-1, :]
-            Y = seq[:, 1:, :]
+        pred = model(X)
 
-            pred = model(X)
-            pred = pred.squeeze(0).cpu().numpy()
-            Y = Y.squeeze(0).cpu().numpy()
-
-            MAE_temp += mean_absolute_error(Y, pred)
-
-    predictive_score = MAE_temp / N_test
+        predictive_score = loss_fn(pred, Y).item()
 
     return predictive_score
+
 
 
 
