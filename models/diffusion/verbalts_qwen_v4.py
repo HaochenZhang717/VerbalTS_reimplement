@@ -331,11 +331,25 @@ class VerbalTSQwenV4(nn.Module):
         self.ts_downsample = nn.ModuleList([])
         self.side_downsample = nn.ModuleList([])
         self.patch_decoder = nn.ModuleList([])
+        self.attr_embed_upsample = nn.ModuleList([])
 
         for i in range(self.multipatch_num):
             self.ts_downsample.append(TsPatchEmbedding(L_patch_len=config["base_patch"]*config["L_patch_len"]**i, channels=inputdim, d_model=self.channels, dropout=0))
             self.patch_decoder.append(PatchDecoder(L_patch_len=config["base_patch"]*config["L_patch_len"]**i, d_model=self.channels, channels=1))
             self.side_downsample.append(SidePatchEmbedding(L_patch_len=config["base_patch"]*config["L_patch_len"]**i, channels=side_dim, d_model=side_dim, dropout=0))
+            patch_length = config["base_patch"]*config["L_patch_len"]**i
+            self.attr_embed_upsample.append(
+                SwiGLUFFN(
+                    in_features=self.channels,
+                    hidden_features=self.channels * patch_length // 32
+                    out_features=self.channels * patch_length // 32,
+                    bias=True,
+                )
+            )
+            # in_features: int,
+            # hidden_features: int,
+            # out_features: int,
+            # bias
 
         self.attn_mask_initialized = False
 
@@ -374,8 +388,12 @@ class VerbalTSQwenV4(nn.Module):
             scale_length.append(x.shape[-1])
             patch_length = self.config["base_patch"]*self.config["L_patch_len"]**i
             print(f"attr_emb_raw.shape = {attr_emb_raw.shape}")
-            breakpoint()
-            attr_emb_list.append(attr_emb_raw.repeat_interleave(32//patch_length, dim=-1))
+            # attr_emb_list.append(attr_emb_raw.repeat_interleave(32//patch_length, dim=-1))
+            attr_emb_patch = self.attr_embed_upsample[i](attr_emb_raw.permute(0, 2, 3, 1)).reshape(B_raw, n_var, -1, self.channels)
+            attr_emb_patch = attr_emb_patch.permute(0,3,1,2) # [512, 1, 4n, 64] -> [512, 64, 1, 4n]
+            attr_emb_list.append(attr_emb_patch)
+            print(f"attr_emb_patch.shape = {attr_emb_patch.shape}")
+            breakpoint() # [512, 64, 1, 4] -> [512, 1, 4, 64] -> [512, 1, 4, 64n] -> [512, 1, 4n, 64]
 
         x_in = torch.cat(x_list, dim=-1)
         side_in = torch.cat(side_list, dim=-1)
