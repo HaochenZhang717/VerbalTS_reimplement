@@ -102,7 +102,7 @@ def calculate_pred_two_paths(real_path, fake_path, look_real=False, save_path="p
                 pred_score = predictive_score_metrics(
                     real.permute(0,2,1),
                     fake.permute(0,2,1),
-                    device,
+                    device=device,
                 )
             else:
                 pred_score = predictive_score_metrics(
@@ -256,11 +256,23 @@ if __name__ == "__main__":
     #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt"
     # )
     #
+    # calculate_pred_two_paths(
+    #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt",
+    #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt",
+    #     look_real=True
+    # )
+
     calculate_pred_two_paths(
-        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt",
-        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt",
-        look_real=True
+    "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u/text2ts_msmdiffmv/0/samples.pt",
+    "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u/text2ts_msmdiffmv/0/samples.pt",
+    look_real=False)
+
+    calculate_disc_two_paths(
+    "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u/text2ts_msmdiffmv/0/samples.pt",
+    "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u/text2ts_msmdiffmv/0/samples.pt",
     )
+
+
 
     # calculate_pred_two_paths(
     #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_m_qwen/text2ts_msmdiffmv/0/real_text_samples.pt",
@@ -277,11 +289,11 @@ if __name__ == "__main__":
     #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_m/text2ts_msmdiffmv/0/samples.pt"
     # )
 
-    calculate_pred_two_paths(
-        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_m/text2ts_msmdiffmv/0/samples.pt",
-        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_m/text2ts_msmdiffmv/0/samples.pt",
-        look_real=True
-    )
+    # calculate_pred_two_paths(
+    #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_m/text2ts_msmdiffmv/0/samples.pt",
+    #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_m/text2ts_msmdiffmv/0/samples.pt",
+    #     look_real=True
+    # )
 
 
     #
