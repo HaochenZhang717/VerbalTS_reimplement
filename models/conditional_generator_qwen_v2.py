@@ -3,8 +3,8 @@ import torch.nn as nn
 
 # from models.encoders.attr_encoder import AttributeEncoder
 from models.encoders.text_encoder import QwenTextEncoder
-from models.encoders.cond_projector import TextProjectorMVarMScaleMStep, AttrProjectorAvg
-from models.unconditional_generator_qwen import UnConditionalGeneratorQwen
+from models.encoders.cond_projector import TextProjectorMVarMScaleMStep, AttrProjectorAvg,QwenProjector
+from models.unconditional_generator_qwen_v2 import UnConditionalGeneratorQwenV2
 from models.cttp.cttp_model import CTTP
 import time
 import random
@@ -98,6 +98,14 @@ class ConditionalGeneratorQwenV2(nn.Module):
                 nn.LeakyReLU(0.2, inplace=True),
                 nn.Linear(cond_configs["text"]["vl_emb_hidden_dim"], cond_configs["text"]["vl_emb"])
             )
+            self.cond_projector = QwenProjector(
+                n_var=diff_configs["diffusion"]["n_var"],
+                n_scale=diff_configs["diffusion"]["multipatch_num"],
+                n_steps=diff_configs["diffusion"]["num_steps"],
+                n_stages=cond_configs["text"]["num_stages"],
+                dim_in=cond_configs["text"]["text_emb"],
+                dim_out=diff_configs["diffusion"]["channels"]
+            )
             self.cond_projector = self.cond_projector.to(self.device)
             self.attr_en = QwenTextEncoder(cond_configs["text"]).to(self.device)
 
@@ -119,7 +127,7 @@ class ConditionalGeneratorQwenV2(nn.Module):
         if "vae_embed" in self.cond_configs["cond_modal"]:
             configs["diffusion"]["text_projector"] = self.cond_configs["vae_embed"]["text_projector"]
 
-        self.generator = UnConditionalGeneratorQwen(configs=configs)
+        self.generator = UnConditionalGeneratorQwenV2(configs=configs)
         if configs["generator_pretrain_path"] != "":
             self.generator.load_state_dict(torch.load(configs["generator_pretrain_path"]))
             print("Load the pretrain unconditional generator")
@@ -129,20 +137,23 @@ class ConditionalGeneratorQwenV2(nn.Module):
     def forward(self, batch, is_train):
         # x, tp, text_embedding_all_segments, moment_embeds = self._unpack_data_cond_gen(batch)
         x, tp, text_embedding_all_segments, vae_embeds, moment_embeds, text_caps, text_caps_base_shape  = self._unpack_data_cond_gen(batch)
-        breakpoint()
-        attr_emb_raw = self.attr_en(text_caps)
 
-        B, C, T = x.shape
+        attr_embed_raw = self.attr_en(text_caps)
+        attr_len, attr_dim = attr_embed_raw.shape[-2:]
+        B, C, S = text_caps_base_shape
+        attr_embed_raw = attr_embed_raw.view(B, C, S, attr_len, attr_dim)
+
+        # B, C, T = x.shape
         # print(f"moment_embed.shape = {moment_embeds.shape}")
         # print(f"vae_embed.shape = {vae_embeds.shape}")
 
-        if self.cond_configs["cond_modal"] == "text":
-            attr_embed_raw = text_embedding_all_segments
-        elif self.cond_configs["cond_modal"] == "vae_embed":
-            # attr_embed_raw = vae_embeds
-            attr_embed_raw = moment_embeds.squeeze(1)
-        else:
-            raise NotImplementedError
+        # if self.cond_configs["cond_modal"] == "text":
+        #     attr_embed_raw = text_embedding_all_segments
+        # elif self.cond_configs["cond_modal"] == "vae_embed":
+        #     # attr_embed_raw = vae_embeds
+        #     attr_embed_raw = moment_embeds.squeeze(1)
+        # else:
+        #     raise NotImplementedError
 
 
         B = x.shape[0]
@@ -154,6 +165,7 @@ class ConditionalGeneratorQwenV2(nn.Module):
                 attr_embed = self.cond_projector(attr_embed_raw, t)
             else:
                 raise NotImplementedError
+
             loss = self.generator._noise_estimation_loss(x, tp, attr_embed, t)
             return loss
 
