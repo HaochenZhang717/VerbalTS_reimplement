@@ -105,7 +105,6 @@ class ConditionalGeneratorQwenV3(nn.Module):
             loss_dict[k] = loss_dict[k] / self.generator.num_steps
         return loss_dict
 
-
     def _unpack_data_cond_gen(self, batch):
         ts = batch["ts"].to(self.device).float()  # batch_size, num_channels, seq_len
         B, C, T = ts.shape
