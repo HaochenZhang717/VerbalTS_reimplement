@@ -116,5 +116,6 @@ class QwenTextEncoder(nn.Module):
         batch_dict = {k: v.to(self.device) for k, v in batch_dict.items()}
         with torch.no_grad():
             outputs = self.model(**batch_dict).last_hidden_state
+        print(outputs.shape)
         text_co_emb = self.text_enc(outputs)
         return text_co_emb
