@@ -6,6 +6,7 @@ export CUDA_VISIBLE_DEVICES=6
 # 路径
 # =========================
 
+# 👉 必须是真实数据（GT）
 REAL_PATH="/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen_v3/text2ts_msmdiffmv/0/real_text_samples.pt"
 
 SAMPLE_DIR="/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen_v3/text2ts_msmdiffmv/0"
@@ -14,15 +15,14 @@ SAVE_FILE="./fid_results/synth_u_qwen_v3_generation.txt"
 
 mkdir -p ./fid_results
 
-# 清空旧结果
 echo "FID Results" > ${SAVE_FILE}
 echo "==========================" >> ${SAVE_FILE}
 
 # =========================
-# 遍历所有 samples
+# 遍历所有 ckpt samples
 # =========================
 
-for sample_path in ${SAMPLE_DIR}/real_text_samples_*.pt
+for sample_path in ${SAMPLE_DIR}/real_text_samples_model_*.pt
 do
     sample_name=$(basename ${sample_path})
 
@@ -42,7 +42,6 @@ do
         --save_path "tmp.txt"
     )
 
-    # 写入文件
     echo "${sample_name}" >> ${SAVE_FILE}
     echo "${result}" >> ${SAVE_FILE}
     echo "--------------------------" >> ${SAVE_FILE}
