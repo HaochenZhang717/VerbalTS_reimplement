@@ -136,12 +136,12 @@ class ConditionalGeneratorQwenV2(nn.Module):
 
     def forward(self, batch, is_train):
         # x, tp, text_embedding_all_segments, moment_embeds = self._unpack_data_cond_gen(batch)
-        x, tp, text_embedding_all_segments, vae_embeds, moment_embeds, text_caps, text_caps_base_shape  = self._unpack_data_cond_gen(batch)
+        x, tp, attr_embed_raw  = self._unpack_data_cond_gen(batch)
 
-        attr_embed_raw = self.attr_en(text_caps)
-        attr_len, attr_dim = attr_embed_raw.shape[-2:]
-        B, C, S = text_caps_base_shape
-        attr_embed_raw = attr_embed_raw.view(B, C, S, attr_len, attr_dim)
+        # attr_embed_raw = self.attr_en(text_caps)
+        # attr_len, attr_dim = attr_embed_raw.shape[-2:]
+        # B, C, S = text_caps_base_shape
+        # attr_embed_raw = attr_embed_raw.view(B, C, S, attr_len, attr_dim)
 
         B = x.shape[0]
         if is_train:
@@ -170,9 +170,9 @@ class ConditionalGeneratorQwenV2(nn.Module):
         B, C, T = ts.shape
         # print("ts.shape in _unpack_data_cond_gen", ts.shape)
         tp = torch.arange(T).repeat(B, 1).to(self.device).float()
-        text_embedding_all_segments = batch["text_embedding_all_segments"].to(self.device).float()
-        vae_embeds = batch["vae_embeds"].to(self.device).float() if batch["vae_embeds"] is not None else None
-        moment_embeds = batch["moment_embed"].to(self.device).float() if batch["moment_embed"] is not None else None
+        # text_embedding_all_segments = batch["text_embedding_all_segments"].to(self.device).float()
+        # vae_embeds = batch["vae_embeds"].to(self.device).float() if batch["vae_embeds"] is not None else None
+        # moment_embeds = batch["moment_embed"].to(self.device).float() if batch["moment_embed"] is not None else None
 
         attrs = organize_caps(
             batch['caps'],
@@ -180,8 +180,9 @@ class ConditionalGeneratorQwenV2(nn.Module):
             n_segments=4
         )
 
-        attrs, attrs_base_shape = flatten_caps(attrs)
-        return ts, tp, text_embedding_all_segments, vae_embeds, moment_embeds, attrs, attrs_base_shape
+        # attrs, attrs_base_shape = flatten_caps(attrs)
+        attr_embed_raw = batch["my_caps_qwen_embeds"].to(self.device).float()
+        return ts, tp, attr_embed_raw
 
     def generate(self, batch, n_samples, sampler="ddim"):
         if self.cond_configs["cond_modal"] == "constraint":
@@ -192,14 +193,13 @@ class ConditionalGeneratorQwenV2(nn.Module):
 
     @torch.no_grad()
     def generate_text(self, batch, n_samples, sampler="ddim"):
-        ts, tp, text_embedding_all_segments, vae_embeds, moment_embeds, text_caps, text_caps_base_shape\
-            = self._unpack_data_cond_gen(batch)
+        ts, tp, attr_embed_raw = self._unpack_data_cond_gen(batch)
         B, C, T = ts.shape
 
-        attr_embed_raw = self.attr_en(text_caps)
-        attr_len, attr_dim = attr_embed_raw.shape[-2:]
-        B, C, S = text_caps_base_shape
-        attr_embed_raw = attr_embed_raw.view(B, C, S, attr_len, attr_dim)
+        # attr_embed_raw = self.attr_en(text_caps)
+        # attr_len, attr_dim = attr_embed_raw.shape[-2:]
+        # B, C, S = text_caps_base_shape
+        # attr_embed_raw = attr_embed_raw.view(B, C, S, attr_len, attr_dim)
 
         samples = []
         for i in range(n_samples):

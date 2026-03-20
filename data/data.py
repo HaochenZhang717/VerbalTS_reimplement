@@ -45,6 +45,7 @@ class CustomSplit(Dataset):
         # self.ts, self.attrs, self.caps = ts, attrs, caps
         self.ts, self.caps = ts, caps
         self.verbalts_qwen_embed = verbalts_qwen_embed
+
         self.n_samples = self.ts.shape[0]
         self.n_steps = self.ts.shape[1]
         self.n_attrs = self.attrs.shape[1]
@@ -57,7 +58,7 @@ class CustomSplit(Dataset):
             tmp_ts = tmp_ts[...,np.newaxis]
         return {"ts": tmp_ts,
                 "ts_len": tmp_ts.shape[0],
-                "verbal_qwen_embed": self.verbalts_qwen_embed[cap_id],
+                "verbal_qwen": self.verbalts_qwen_embed[cap_id],
                 # "attrs": self.attrs[idx],
                 "cap": self.caps[idx][cap_id],
                 "tp": self.time_point}
@@ -66,163 +67,193 @@ class CustomSplit(Dataset):
         return self.n_samples
 
 
-import os
-import json
-import torch
-import argparse
-import re
-from tqdm import tqdm
-from transformers import AutoTokenizer, AutoModel
+class MyDataset:
+    """
+    Wrapper class so that the block-causal dataset fits
+    the GenerationDataset interface.
+    """
+
+    def __init__(
+        self,
+        ts_path,
+        caps_path,
+        vae_embed_path,
+        text_embed_path,
+        seq_len,
+        num_channels,
+        num_segments,
+        **kwargs
+    ):
+        self.ts_path = ts_path
+        self.caps_path = caps_path
+        self.seq_len = seq_len
+        self.text_embed_path = text_embed_path
+        self.vae_embed_path = vae_embed_path
+        self.num_segments = num_segments
+        self.num_channels = num_channels
+
+        self.attr_n_ops = None
+
+    def get_split(self, split, text_type=None, *args):
+        return MySplit(
+            ts_path=self.ts_path,
+            caps_path=self.caps_path,
+            vae_embed_path=self.vae_embed_path,
+            seq_len=self.seq_len,
+            text_embed_path=self.text_embed_path,
+            num_channels=self.num_channels,
+            num_segments=self.num_segments,
+            split=split,
+        )
 
 
-# =========================
-# Qwen encoder（无 projector）
-# =========================
-class QwenTextEncoder(torch.nn.Module):
-    def __init__(self, device):
+class MySplit(Dataset):
+    def __init__(
+        self,
+        ts_path,
+        caps_path,
+        vae_embed_path,
+        text_embed_path,
+        seq_len,
+        num_channels,
+        num_segments,
+        split="train",
+    ):
         super().__init__()
-        self.device = device
 
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            "Qwen/Qwen3-Embedding-0.6B",
-            padding_side="left"
+        self.split = split
+        self.num_segments = num_segments
+        self.num_channels = num_channels
+
+        self.caps_path = caps_path
+        # ------------------------
+        # load data
+        # ------------------------
+        self.ts = None
+        self.moment_embed = None
+        if ts_path != "none":
+            self.ts = np.load(f"{ts_path}/{split}_ts.npy", allow_pickle=True)  # (N,T,C)
+            self.N, self.T, self.C = self.ts.shape
+            self.my_caps_qwen_embed = np.load(os.path.join(self.folder, self.split + fr"_embeds_qwen_seq.npy"), allow_pickle=True)
+
+            # self.moment_embed = np.load(f"{ts_path}/{split}_moment_embeds.npy", allow_pickle=True)
+        else:
+            self.N = -1
+            self.T = seq_len
+            self.C = num_channels
+
+        if not text_embed_path.endswith('.pt'):
+            self.text_embed = torch.load(f"{text_embed_path}/{split}_embeds.pt", map_location="cpu")
+        else:
+            self.text_embed = torch.load(text_embed_path, map_location="cpu")
+
+
+        self.vae_embed = None
+        if vae_embed_path != "none":
+            self.vae_embed = np.load(f"{vae_embed_path}/{split}_vae.npy", allow_pickle=True)
+            self.vae_embed = torch.from_numpy(self.vae_embed)
+
+
+        self.caps = None
+        if self.caps_path != "none":
+            if not self.caps_path.endswith(".jsonl"):
+                caps_dict = {}
+                with open(f"{self.caps_path}/{split}_caps_ready.jsonl", "r") as f:
+                    for line in f:
+                        item = json.loads(line)
+                        caps_dict[item["id"]] = item["captions"]
+                self.caps = caps_dict
+            else:
+                caps_dict = {}
+                with open(self.caps_path, "r") as f:
+                    for line in f:
+                        item = json.loads(line)
+                        caps_dict[item["id"]] = item["captions"]
+                self.caps = caps_dict
+
+        assert self.T % self.num_segments == 0
+
+        self.segment_length = self.T // self.num_segments
+
+        self.ids = sorted(
+            self.text_embed.keys(),
+            key=lambda x: int(x.replace("image", "")),
         )
-        self.model = AutoModel.from_pretrained(
-            "Qwen/Qwen3-Embedding-0.6B"
-        ).to(device).eval()
 
-        for p in self.model.parameters():
-            p.requires_grad = False
+        self.block_ids = list(range(self.num_segments))
+        self.num_block_choices = len(self.block_ids)
 
-    @torch.no_grad()
-    def forward(self, texts):
-        batch = self.tokenizer(
-            texts,
-            padding=True,
-            truncation=True,
-            max_length=40,
-            return_tensors="pt"
+        print(
+            f"[CausalSplit:{self.split}] "
+            f"N={self.N}, T={self.T}, C={self.C}, segments={self.num_segments}"
         )
-        batch = {k: v.to(self.device) for k, v in batch.items()}
 
-        outputs = self.model(**batch).last_hidden_state  # (B, L, 1024)
-        return outputs
+    def __len__(self):
+        return len(self.ids)
 
+    def __getitem__(self, idx):
+        image_id = self.ids[idx]
+        ts_id = int(image_id.replace("image", ""))
 
-# =========================
-# 主逻辑
-# =========================
-def precompute(
-    caps_path,
-    save_path,
-    split="train",
-    batch_size=64,
-    device="cuda"
-):
+        if self.ts is not None:
+            ts = self.ts[ts_id]  # (T,C)
+            ts = torch.from_numpy(ts).float().transpose(0, 1)  # (C,T)
+        else:
+            ts = torch.zeros((self.C, self.T)).float()
 
-    print("Loading captions...")
+        if self.caps is not None:
+            caps = self.caps[image_id]
+        else:
+            caps = "caps not loaded."
 
-    caps_dict = {}
-    with open(f"{caps_path}/{split}_caps_ready.jsonl", "r") as f:
-        for line in f:
-            item = json.loads(line)
-            caps_dict[item["id"]] = item["captions"]
+        if self.vae_embed is not None:
+            vae_embed = self.vae_embed[ts_id]
+        else:
+            vae_embed = None
 
-    print(f"Loaded {len(caps_dict)} samples")
+        # ------------------------
+        # text embedding
+        # ------------------------
+        # print("ts shape in getitem ", ts.shape)
+        text_embed_all_segments = []
+        for target_block in self.block_ids:
+            channel_embeds = []
+            for c in range(self.C):
+                key = f"seg{target_block+1}_channel{c}"
+                emb = self.text_embed[image_id][key]
+                channel_embeds.append(emb)
+            text_embed = torch.stack(channel_embeds, dim=0)  # (C,D)
+            text_embed_all_segments.append(text_embed)
+        text_embed_all_segments = torch.stack(text_embed_all_segments, dim=0) # (num_segments,C,D)
 
-    encoder = QwenTextEncoder(device).to(device)
+        item = {
+            "ts": ts,
+            "ts_len": self.T,
+            "text_embedding_all_segments": text_embed_all_segments,
+            "my_caps_qwen_embeds": self.my_caps_qwen_embed[image_id],
+            "image_id": image_id,
+            "ts_id": ts_id,
+            "caps": caps,
+            "vae_embeds": vae_embed,
+            "moment_embed": torch.from_numpy(self.moment_embed[idx]).float() if self.moment_embed is not None else None,
+            # 'attn_mask': build_block_causal_mask(self.T, text_embed_all_segments.shape[0])
+        }
 
-    result = {}
+        return item
 
-    # =========================
-    # 遍历每个 sample
-    # =========================
-    for image_id in tqdm(caps_dict.keys()):
+    @staticmethod
+    def collate_fn(batch):
+        out = {}
+        out["ts"] = torch.stack([b["ts"] for b in batch])
+        out["my_caps_qwen_embeds"] = torch.stack([b["my_caps_qwen_embeds"] for b in batch])
+        out["vae_embeds"] = torch.stack([b["vae_embeds"] for b in batch]) if batch[0]["vae_embeds"] is not None else None
+        out["ts_len"] = torch.tensor([b["ts_len"] for b in batch])
+        out["text_embedding_all_segments"] = torch.stack([b["text_embedding_all_segments"] for b in batch])
+        out["image_id"] = [b["image_id"] for b in batch]
+        out["ts_id"] = torch.tensor([b["ts_id"] for b in batch])
+        out["caps"] = [b["caps"] for b in batch]
+        out["moment_embed"] = torch.stack([b["moment_embed"] for b in batch]) if batch[0]["moment_embed"] is not None else None
 
-        caps_list = caps_dict[image_id]  # list of dicts
+        # out["attn_mask"] = torch.stack([b["attn_mask"] for b in batch])
 
-        keys = []
-        texts = []
-
-        for d in caps_list:
-            for k, v in d.items():
-                keys.append(k)     # segX_channelY
-                texts.append(v)
-
-        # =========================
-        # batch encode
-        # =========================
-        embeds_all = []
-
-        for i in range(0, len(texts), batch_size):
-            batch_text = texts[i:i + batch_size]
-            embeds = encoder(batch_text)  # (b, L, 1024)
-            embeds_all.append(embeds.cpu())
-
-        embeds_all = torch.cat(embeds_all, dim=0)  # (N, L, D)
-
-        # =========================
-        # 🔥 构造 (C, S, L, D)
-        # =========================
-
-        max_c = 0
-        max_s = 0
-
-        parsed_indices = []
-
-        for k in keys:
-            ch = int(re.search(r"channel(\d+)", k).group(1))
-            seg = int(re.search(r"seg(\d+)", k).group(1)) - 1
-
-            parsed_indices.append((ch, seg))
-
-            max_c = max(max_c, ch)
-            max_s = max(max_s, seg)
-
-        C = max_c + 1
-        S = max_s + 1
-
-        L, D = embeds_all[0].shape
-
-        tensor = torch.zeros(C, S, L, D)
-
-        # 填充
-        for i, (ch, seg) in enumerate(parsed_indices):
-            tensor[ch, seg] = embeds_all[i]
-
-        result[image_id] = tensor  # ⭐ 关键改动
-
-    # =========================
-    # 保存
-    # =========================
-    torch.save(result, save_path)
-
-    print(f"Saved to {save_path}")
-
-    # debug
-    example = list(result.keys())[0]
-    print("Example:", example)
-    print("Tensor shape:", result[example].shape)  # (C, S, L, D)
-
-
-# =========================
-# CLI
-# =========================
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument("--caps_path", type=str, required=True)
-    parser.add_argument("--save_path", type=str, required=True)
-    parser.add_argument("--split", type=str, default="train")
-    parser.add_argument("--batch_size", type=int, default=64)
-    parser.add_argument("--device", type=str, default="cuda")
-
-    args = parser.parse_args()
-
-    precompute(
-        caps_path=args.caps_path,
-        save_path=args.save_path,
-        split=args.split,
-        batch_size=args.batch_size,
-        device=args.device,
-    )
+        return out
