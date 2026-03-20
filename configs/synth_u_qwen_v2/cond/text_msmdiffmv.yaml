@@ -3,10 +3,10 @@ cond_modal: vae_embed
 generator_pretrain_path: ""
 
 text:
-  model_id: Qwen/Qwen3-VL-Embedding-2B
   pretrain_model_dim: 2048
   vl_emb_hidden_dim: 256
   vl_emb: 64
+  num_stages: 3
 
 vae_embed:
 #  n_latent_tokens: 32
