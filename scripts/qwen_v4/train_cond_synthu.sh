@@ -1,4 +1,5 @@
 export USE_CAUSAL=false
+export WANDB_NAME="qwen_v4_synth_u"
 
 CUDA_VISIBLE_DEVICES=7 python run_qwen_v4.py \
     --cond_modal text \

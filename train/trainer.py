@@ -7,6 +7,8 @@ from torch.optim import Adam
 from data import GenerationDataset
 from evaluation.base_evaluator import BaseEvaluator
 import matplotlib.pyplot as plt
+import wandb
+
 
 class Trainer:
     """
@@ -20,6 +22,12 @@ class Trainer:
         self._init_eval(eval_configs)
         self._best_valid_loss = 1e10
         # self.tf_writer = SummaryWriter(log_dir=self.output_folder)
+
+        wandb.init(
+            project="verbalts",  # 你可以改名字
+            name=os.getenv("WANDB_NAME", "no_name"),  # 自动用实验名
+            config=self.configs
+        )
 
     def _init_eval(self, eval_configs):
         dataset = GenerationDataset(eval_configs["data"])
@@ -113,6 +121,11 @@ class Trainer:
                       "Loss:", avg_loss,
                       "Time: {:.2f}".format(end_time-start_time))
 
+                wandb.log({
+                    "train/epoch_loss": avg_loss,
+                    "epoch": epoch_no
+                })
+
     """
     Valid.
     """
@@ -126,7 +139,10 @@ class Trainer:
 
         avg_loss_valid = avg_loss_valid/len(self.valid_loader)
         # self.tf_writer.add_scalar("Valid/epoch_loss", avg_loss_valid, epoch_no)
-
+        wandb.log({
+            "valid/loss": avg_loss_valid,
+            "epoch": epoch_no
+        })
         if self._best_valid_loss > avg_loss_valid:
             self._best_valid_loss = avg_loss_valid
             print(f"\n*** Best loss is updated to {avg_loss_valid} at {epoch_no}.\n")
