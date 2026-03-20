@@ -70,24 +70,29 @@ class ConditionalGeneratorQwenV3(nn.Module):
         B = x.shape[0]
         if is_train:
             t = torch.randint(0, self.generator.num_steps, [B], device=self.device)
-            if self.cond_configs["cond_modal"] == "text":
-                attr_embed = self.cond_projector(attr_embed_raw)  # for now we are not using projector.
-            elif self.cond_configs["cond_modal"] == "vae_embed":
-                attr_embed = self.cond_projector(attr_embed_raw, t)
-            else:
-                raise NotImplementedError
+            # if self.cond_configs["cond_modal"] == "text":
+            #     attr_embed = self.cond_projector(attr_embed_raw)  # for now we are not using projector.
+            # elif self.cond_configs["cond_modal"] == "vae_embed":
+            #     attr_embed = self.cond_projector(attr_embed_raw, t)
+            # else:
+            #     raise NotImplementedError
+
+            attr_embed = self.cond_projector(attr_embed_raw, t)
             loss = self.generator._noise_estimation_loss(x, tp, attr_embed, t)
             return loss
 
         loss_dict = {}
         for t in range(self.generator.num_steps):
             t = (torch.ones(B, device=self.device) * t).long()
-            if self.cond_configs["cond_modal"] == "text":
-                attr_embed = self.cond_projector(attr_embed_raw)  # for now we are not using projector.
-            elif self.cond_configs["cond_modal"] == "vae_embed":
-                attr_embed = self.cond_projector(attr_embed_raw, t)
-            else:
-                raise NotImplementedError
+            # if self.cond_configs["cond_modal"] == "text":
+            #     attr_embed = self.cond_projector(attr_embed_raw)  # for now we are not using projector.
+            # elif self.cond_configs["cond_modal"] == "vae_embed":
+            #     attr_embed = self.cond_projector(attr_embed_raw, t)
+            # else:
+            #     raise NotImplementedError
+
+            attr_embed = self.cond_projector(attr_embed_raw, t)
+
             tmp_loss_dict = self.generator._noise_estimation_loss(x, tp, attr_embed, t)
             for k in tmp_loss_dict:
                 if k in loss_dict.keys():
@@ -122,15 +127,17 @@ class ConditionalGeneratorQwenV3(nn.Module):
         ts, tp, text_embedding_all_segments, vae_embeds, moment_embeds = self._unpack_data_cond_gen(batch)
         B, C, T = ts.shape
 
-        if self.cond_configs["cond_modal"] == "text":
-            attr_embed_raw = text_embedding_all_segments
-            # print(attr_embed_raw.shape)
-            # breakpoint()
-        elif self.cond_configs["cond_modal"] == "vae_embed":
-            # attr_embed_raw = vae_embeds
-            attr_embed_raw = moment_embeds
-        else:
-            raise NotImplementedError
+        # if self.cond_configs["cond_modal"] == "text":
+        #     attr_embed_raw = text_embedding_all_segments
+        #     # print(attr_embed_raw.shape)
+        #     # breakpoint()
+        # elif self.cond_configs["cond_modal"] == "vae_embed":
+        #     # attr_embed_raw = vae_embeds
+        #     attr_embed_raw = moment_embeds
+        # else:
+        #     raise NotImplementedError
+
+        attr_embed_raw = self.attr_encoder(text_embedding_all_segments)
 
         samples = []
         for i in range(n_samples):
@@ -140,13 +147,13 @@ class ConditionalGeneratorQwenV3(nn.Module):
                 noise = torch.randn_like(x)
                 t = (torch.ones(B, device=self.device) * t).long()
 
-                if self.cond_configs["cond_modal"] == "text":
-                    attr_embed = self.cond_projector(attr_embed_raw)  # for now we are not using projector.
-                elif self.cond_configs["cond_modal"] == "vae_embed":
-                    attr_embed = self.cond_projector(attr_embed_raw, t)
-                else:
-                    raise NotImplementedError
-
+                # if self.cond_configs["cond_modal"] == "text":
+                #     attr_embed = self.cond_projector(attr_embed_raw)  # for now we are not using projector.
+                # elif self.cond_configs["cond_modal"] == "vae_embed":
+                #     attr_embed = self.cond_projector(attr_embed_raw, t)
+                # else:
+                #     raise NotImplementedError
+                attr_embed = self.cond_projector(attr_embed_raw, t)
                 pred_noise, _ = self.generator.predict_noise(x, tp, attr_embed, t)
                 if sampler == "ddpm":
                     x = self.generator.ddpm.reverse(x, pred_noise, t, noise)
