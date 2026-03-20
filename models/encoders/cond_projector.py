@@ -29,7 +29,7 @@ class TextProjectorMVarMScaleMStep(nn.Module):
 
         scale_emb = self.scale_emb.expand([B,-1,-1])
         mscale_attr = self.scale_cross_attn(tgt=scale_emb, memory=attr)
-        mscale_attr = mscale_attr[:,None,:,:].expand([-1,self.n_var,-1,-1])
+        mscale_attr = mscale_attr[:,None,:,:].expand([-1,self.n_var,-1,-1]) # (B, 1, n_scale, dim_in)
 
         step_emb = self.step_emb.expand([B,-1,-1])
         mstep_attr = self.step_cross_attn(tgt=step_emb, memory=attr)
@@ -104,5 +104,33 @@ class QwenProjector(nn.Module):
         mstep_attr = mstep_attr[:,None,:,:].expand([-1, self.n_var, -1, -1])
 
         mix_attr = mvar_attr + mscale_attr + mstep_attr
+        out = self.proj_out(mix_attr)
+        return out
+
+
+
+
+class QwenV3Projector(nn.Module):
+    def __init__(self, n_steps, n_stages, dim_in=128, dim_out=128):
+        super().__init__()
+        self.dim_in = dim_in
+        self.dim_out = dim_out
+        self.seg_size = n_steps // n_stages + 1
+        self.step_emb = nn.Parameter(torch.zeros((1, n_stages, dim_in)))
+        step_cross_attn_layer = nn.TransformerDecoderLayer(d_model=dim_in, nhead=8, dim_feedforward=64, activation="gelu", batch_first=True)
+        self.step_cross_attn = nn.TransformerDecoder(step_cross_attn_layer, num_layers=2)
+        self.proj_out = nn.Linear(self.dim_in, self.dim_out)
+
+    def forward(self, attr, diffusion_step):
+        B, n_vars, n_segments, dim_attr = attr.shape
+
+        step_emb = self.step_emb.expand([B,-1,-1])#(B, n_stages, dim_in)
+        mstep_attr = self.step_cross_attn(tgt=step_emb, memory=attr.reshape(B, -1, dim_attr))
+        indices = diffusion_step // self.seg_size
+        indices = indices[:,None,None]
+        mstep_attr = torch.gather(mstep_attr, dim=1, index=indices.expand([-1, -1, mstep_attr.shape[-1]]))
+        mstep_attr = mstep_attr[:,None,:,:].expand([-1, self.n_var, -1, -1])
+
+        mix_attr = attr+ mstep_attr
         out = self.proj_out(mix_attr)
         return out
