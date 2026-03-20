@@ -98,7 +98,7 @@ class QwenTextEncoder(nn.Module):
             param.requires_grad = False
 
         self.text_enc = nn.Sequential(
-            nn.Linear(self.model.configs["hidden_dim"], configs["vl_emb_hidden_dim"]),
+            nn.Linear(self.model.config["hidden_dim"], configs["vl_emb_hidden_dim"]),
             nn.LayerNorm(configs["vl_emb_hidden_dim"]),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Linear(configs["vl_emb_hidden_dim"], configs["vl_emb"])
