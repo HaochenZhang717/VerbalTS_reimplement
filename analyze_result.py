@@ -99,9 +99,9 @@ def calculate_pred_two_paths(real_path, fake_path, save_path="pred_results.jsonl
             pred_score_list.append(pred_score)
             # print(discriminative_score)
 
-    pred_score_arr = np.array(pred_score)
-    pred_score_mean = float(pred_score.mean())
-    pred_score_std = float(pred_score.std(ddof=1))
+    pred_score_arr = np.array(pred_score_list)
+    pred_score_mean = float(pred_score_arr.mean())
+    pred_score_std = float(pred_score_arr.std(ddof=1))
 
     # ===== 构造结果 =====
     result = {
