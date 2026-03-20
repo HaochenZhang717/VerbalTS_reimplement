@@ -129,7 +129,7 @@ class QwenV3Projector(nn.Module):
         indices = diffusion_step // self.seg_size
         indices = indices[:,None,None]
         mstep_attr = torch.gather(mstep_attr, dim=1, index=indices.expand([-1, -1, mstep_attr.shape[-1]]))
-        mstep_attr = mstep_attr[:,None,:,:].expand([-1, self.n_var, -1, -1])
+        mstep_attr = mstep_attr[:,None,:,:].expand([-1, n_vars, -1, -1])
 
         mix_attr = attr+ mstep_attr
         out = self.proj_out(mix_attr)
