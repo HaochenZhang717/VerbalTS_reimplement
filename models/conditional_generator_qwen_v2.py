@@ -124,8 +124,8 @@ class ConditionalGeneratorQwenV2(nn.Module):
 
     def _init_diff(self, configs):
         configs["device"] = self.device
-        if "vae_embed" in self.cond_configs["cond_modal"]:
-            configs["diffusion"]["text_projector"] = self.cond_configs["vae_embed"]["text_projector"]
+
+        configs["diffusion"]["text_projector"] = self.cond_configs["text"]["text_projector"]
 
         self.generator = UnConditionalGeneratorQwenV2(configs=configs)
         if configs["generator_pretrain_path"] != "":
