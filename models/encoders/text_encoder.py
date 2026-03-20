@@ -3,6 +3,8 @@ import torch.nn as nn
 import numpy as np
 from transformers import GPT2Config, GPT2Model, GPT2Tokenizer, BertConfig, BertModel
 from transformers import AutoTokenizer, CLIPTextModelWithProjection, CLIPTextConfig
+from transformers import AutoTokenizer, AutoModel
+
 
 def get_torch_trans(heads=8, layers=1, channels=64):
     encoder_layer = nn.TransformerEncoderLayer(
@@ -80,3 +82,39 @@ class TextEncoder(nn.Module):
             text_emb += self.pe[:, :text_emb.shape[1], :].to(text_emb.device)
         text_emb = self.trans_layer(text_emb)
         return text_emb
+
+
+class QwenTextEncoder(nn.Module):
+    def __init__(self, configs):
+        super().__init__()
+        self.configs = configs
+        self.device = configs["device"]
+        self.emb_dim = configs["text_emb"]
+
+        self.tokenizer = AutoTokenizer.from_pretrained('Qwen/Qwen3-Embedding-0.6B', padding_side='left')
+        self.model = AutoModel.from_pretrained('Qwen/Qwen3-Embedding-0.6B').to(self.device).eval()
+
+        for i, (name, param) in enumerate(self.model.named_parameters()):
+            param.requires_grad = False
+
+        self.text_enc = nn.Sequential(
+            nn.Linear(self.model.configs["hidden_dim"], configs["textemb_hidden_dim"]),
+            nn.LayerNorm(configs["textemb_hidden_dim"]),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Linear(configs["textemb_hidden_dim"], configs["text_emb"])
+        )
+
+    def forward(self, text):
+        max_length = 256
+        batch_dict = self.tokenizer(
+            text,
+            padding=True,
+            truncation=True,
+            max_length=max_length,
+            return_tensors="pt",
+        )
+        batch_dict = {k: v.to(self.device) for k, v in batch_dict.items()}
+        with torch.no_grad():
+            outputs = self.model(**batch_dict).last_hidden_state
+        text_co_emb = self.text_enc(outputs)
+        return text_co_emb
