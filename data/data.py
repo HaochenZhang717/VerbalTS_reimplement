@@ -134,7 +134,7 @@ class MySplit(Dataset):
         if ts_path != "none":
             self.ts = np.load(f"{ts_path}/{split}_ts.npy", allow_pickle=True)  # (N,T,C)
             self.N, self.T, self.C = self.ts.shape
-            self.my_caps_qwen_embed = np.load(os.path.join(self.caps_path, self.split + fr"_embeds_qwen_seq.npy"), allow_pickle=True)
+            self.my_caps_qwen_embed = torch.load(os.path.join(self.caps_path, self.split + fr"_embeds_qwen_seq.npy"), weights_only=False)
 
             # self.moment_embed = np.load(f"{ts_path}/{split}_moment_embeds.npy", allow_pickle=True)
         else:
