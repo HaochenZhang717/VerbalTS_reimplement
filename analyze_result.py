@@ -81,6 +81,8 @@ def calculate_pred_two_paths(real_path, fake_path, save_path="pred_results.jsonl
 
     real_dict = torch.load(real_path, map_location="cpu", weights_only=False)
     real = real_dict["real_ts"]
+    if real.shape[1] > real.shape[2]:
+        real = real.permute(0,2,1)
 
     samples_dict = torch.load(fake_path, map_location="cpu", weights_only=False)
 
@@ -93,6 +95,8 @@ def calculate_pred_two_paths(real_path, fake_path, save_path="pred_results.jsonl
     print(samples_dict["sampled_ts"].shape)
     for i in range(samples_dict["sampled_ts"].shape[0]):
         fake = samples_dict["sampled_ts"][i, :num_samples]
+        if fake.shape[1] > fake.shape[2]:
+            fake = fake.permute(0,2,1)
         for _ in range(1):
             pred_score = predictive_score_metrics(
                 real.permute(0,2,1),
