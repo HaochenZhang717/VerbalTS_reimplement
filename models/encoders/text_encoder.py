@@ -89,7 +89,7 @@ class QwenTextEncoder(nn.Module):
         super().__init__()
         self.configs = configs
         self.device = configs["device"]
-        self.emb_dim = configs["text_emb"]
+        self.emb_dim = configs["vl_emb"]
 
         self.tokenizer = AutoTokenizer.from_pretrained('Qwen/Qwen3-Embedding-0.6B', padding_side='left')
         self.model = AutoModel.from_pretrained('Qwen/Qwen3-Embedding-0.6B').to(self.device).eval()
@@ -98,10 +98,10 @@ class QwenTextEncoder(nn.Module):
             param.requires_grad = False
 
         self.text_enc = nn.Sequential(
-            nn.Linear(self.model.configs["hidden_dim"], configs["textemb_hidden_dim"]),
-            nn.LayerNorm(configs["textemb_hidden_dim"]),
+            nn.Linear(self.model.configs["hidden_dim"], configs["vl_emb_hidden_dim"]),
+            nn.LayerNorm(configs["vl_emb_hidden_dim"]),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Linear(configs["textemb_hidden_dim"], configs["text_emb"])
+            nn.Linear(configs["vl_emb_hidden_dim"], configs["vl_emb"])
         )
 
     def forward(self, text):
