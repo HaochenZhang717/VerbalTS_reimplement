@@ -29,8 +29,7 @@ class QwenTextEncoder(torch.nn.Module):
     def forward(self, texts):
         batch = self.tokenizer(
             texts,
-            padding=True,
-            truncation=True,
+            padding="max_length",
             max_length=40,
             return_tensors="pt"
         )
