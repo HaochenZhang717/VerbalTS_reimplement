@@ -34,7 +34,7 @@ echo "Start precomputing Qwen embeddings..."
 python $SCRIPT_PATH \
     --caps_path $CAPS_PATH \
     --save_path $SAVE_ROOT/valid_embeds_qwen_seq.pt \
-    --split val \
+    --split valid \
     --batch_size $BATCH_SIZE \
     --device $DEVICE
 
