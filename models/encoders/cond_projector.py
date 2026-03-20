@@ -88,7 +88,7 @@ class QwenProjector(nn.Module):
         B, n_vars, n_segments, seq_len, dim_attr = attr.shape
 
         var_emb = self.var_emb.expand([B,-1,-1]).view(B*n_vars, 1,  -1) # (B*n_var, 1, dim_in)
-        breakpoint()
+
         mvar_attr = self.var_cross_attn(tgt=var_emb, memory=attr.view(B*n_vars, n_segments*seq_len, dim_attr)) # (B*n_var, 1, dim_in)
         mvar_attr = mvar_attr.view(B, n_vars, 1, -1)# (B, n_var, 1, dim_in)
 
