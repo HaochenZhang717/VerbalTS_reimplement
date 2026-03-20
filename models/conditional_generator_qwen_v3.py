@@ -31,6 +31,8 @@ class ConditionalGeneratorQwenV3(nn.Module):
                 nn.LeakyReLU(0.2, inplace=True),
                 nn.Linear(cond_configs["text"]["vl_emb_hidden_dim"], cond_configs["text"]["vl_emb"])
             )
+            self.attr_encoder = self.attr_encoder.to(self.device)
+
 
             self.cond_projector = QwenV3Projector(
                 n_steps=diff_configs["diffusion"]["num_steps"],
