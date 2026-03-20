@@ -11,6 +11,7 @@ import torch
 import matplotlib.pyplot as plt
 import numpy as np
 from metrics.discriminative_torch import discriminative_score_metrics
+from metrics.predictive_metrics import predictive_score_metrics
 import torch
 import numpy as np
 from scipy.linalg import sqrtm
@@ -68,6 +69,59 @@ def calculate_disc_two_paths(real_path, fake_path, save_path="disc_results.jsonl
     print(fake_path)
     print(f"Disc Score: mean = {disc_mean:.4f}, std = {disc_std:.4f}")
     print("---" * 50)
+
+
+def calculate_pred_two_paths(real_path, fake_path, save_path="pred_results.jsonl"):
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    real_dict = torch.load(real_path, map_location="cpu", weights_only=False)
+    real = real_dict["real_ts"]
+
+    samples_dict = torch.load(fake_path, map_location="cpu", weights_only=False)
+
+    num_samples = min(len(real), len(samples_dict["sampled_ts"][0]))
+    real = real[:num_samples]
+
+    pred_score_list = []
+    print(real.shape)
+    print(samples_dict["sampled_ts"].shape)
+    for i in range(samples_dict["sampled_ts"].shape[0]):
+        fake = samples_dict["sampled_ts"][i, :num_samples]
+        for _ in range(1):
+            pred_score = predictive_score_metrics(
+                real.permute(0,2,1),
+                fake.permute(0,2,1),
+                device,
+            )
+            pred_score_list.append(pred_score)
+            # print(discriminative_score)
+
+    pred_score_arr = np.array(pred_score)
+    pred_score_mean = float(pred_score.mean())
+    pred_score_std = float(pred_score.std(ddof=1))
+
+    # ===== 构造结果 =====
+    result = {
+        "real_path": real_path,
+        "fake_path": fake_path,
+        "num_samples": int(num_samples),
+        "pred_scores": pred_score_list,
+        "pred_mean": pred_score_mean,
+        "pred_std": pred_score_std,
+    }
+
+    # ===== 写入 jsonl（append）=====
+    os.makedirs(os.path.dirname(save_path), exist_ok=True) if os.path.dirname(save_path) else None
+
+    with open(save_path, "a") as f:
+        f.write(json.dumps(result) + "\n")
+
+    # ===== 仍然print（方便你看）=====
+    print(fake_path)
+    print(f"Disc Score: mean = {pred_score_mean:.4f}, std = {pred_score_std:.4f}")
+    print("---" * 50)
+
 
 
 
@@ -171,25 +225,44 @@ if __name__ == "__main__":
     #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_vae_embed/text2ts_msmdiffmv/0/real_text_samples.pt"
     # )
 
-    calculate_disc_two_paths(
+    calculate_pred_two_paths(
         "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/real_text_samples.pt",
         "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/real_text_samples.pt"
     )
 
-    calculate_disc_two_paths(
+    calculate_pred_two_paths(
         "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/real_text_samples.pt",
         "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/fake_text_samples.pt"
     )
+
+    calculate_pred_two_paths(
+        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt",
+        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt"
+    )
+
+    #
+    # calculate_disc_two_paths(
+    #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/real_text_samples.pt",
+    #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/real_text_samples.pt"
+    # )
+    #
+    # calculate_disc_two_paths(
+    #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/real_text_samples.pt",
+    #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/fake_text_samples.pt"
+    # )
+    #
+    # calculate_disc_two_paths(
+    #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt",
+    #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt"
+    # )
+
 
     # calculate_disc_two_paths(
     #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u/text2ts_msmdiffmv/0/verbalts_caps_samples.pt",
     #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u/text2ts_msmdiffmv/0/verbalts_caps_samples.pt"
     # )
     #
-    calculate_disc_two_paths(
-        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt",
-        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt"
-    )
+
 
     # calculate_fid_two_paths(
     #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_vae_embed/text2ts_msmdiffmv/0/real_text_samples.pt",
