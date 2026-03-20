@@ -115,7 +115,7 @@ def calculate_pred_two_paths(real_path, fake_path, save_path="pred_results.jsonl
         "real_path": real_path,
         "fake_path": fake_path,
         "num_samples": int(num_samples),
-        "pred_scores": pred_score_list,
+        # "pred_scores": pred_score_list,
         "pred_mean": pred_score_mean,
         "pred_std": pred_score_std,
     }
