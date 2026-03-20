@@ -31,12 +31,15 @@ def calculate_disc_two_paths(real_path, fake_path, save_path="disc_results.jsonl
     # num_samples = min(len(real), len(samples_dict["sampled_ts"][0]))
     num_samples = 2850
     real = real[:num_samples]
-
+    if real.shape[1] > real.shape[2]:
+        real = real.permute(0,2,1)
     disc_score_list = []
     print(real.shape)
     print(samples_dict["sampled_ts"].shape)
     for i in range(samples_dict["sampled_ts"].shape[0]):
         fake = samples_dict["sampled_ts"][i, :num_samples]
+        if fake.shape[1] > fake.shape[2]:
+            fake = fake.permute(0,2,1)
         for _ in range(1):
             discriminative_score = discriminative_score_metrics(
                 real.permute(0,2,1), fake.permute(0,2,1),
@@ -227,36 +230,36 @@ if __name__ == "__main__":
     #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_vae_embed/text2ts_msmdiffmv/0/real_text_samples.pt"
     # )
 
-    calculate_pred_two_paths(
-        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/real_text_samples.pt",
-        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/real_text_samples.pt"
-    )
-
-    calculate_pred_two_paths(
-        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/real_text_samples.pt",
-        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/fake_text_samples.pt"
-    )
-
-    calculate_pred_two_paths(
-        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt",
-        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt"
-    )
-
-    #
-    # calculate_disc_two_paths(
+    # calculate_pred_two_paths(
     #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/real_text_samples.pt",
     #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/real_text_samples.pt"
     # )
     #
-    # calculate_disc_two_paths(
+    # calculate_pred_two_paths(
     #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/real_text_samples.pt",
     #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/fake_text_samples.pt"
     # )
     #
-    # calculate_disc_two_paths(
+    # calculate_pred_two_paths(
     #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt",
     #     "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt"
     # )
+
+    #
+    calculate_disc_two_paths(
+        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/real_text_samples.pt",
+        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/real_text_samples.pt"
+    )
+
+    calculate_disc_two_paths(
+        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/real_text_samples.pt",
+        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen/text2ts_msmdiffmv/0/fake_text_samples.pt"
+    )
+
+    calculate_disc_two_paths(
+        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt",
+        "/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/uncond_synth_u/text2ts_msmdiffmv/0/samples.pt"
+    )
 
 
     # calculate_disc_two_paths(
