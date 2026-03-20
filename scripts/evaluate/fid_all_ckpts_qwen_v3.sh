@@ -7,7 +7,7 @@ export CUDA_VISIBLE_DEVICES=6
 # =========================
 
 # 👉 必须是真实数据（GT）
-REAL_PATH="/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen_v3/text2ts_msmdiffmv/0/real_text_samples.pt"
+REAL_PATH="/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen_v3/text2ts_msmdiffmv/0/real_text_samples_model_best_loss.pt"
 
 SAMPLE_DIR="/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen_v3/text2ts_msmdiffmv/0"
 
