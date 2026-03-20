@@ -366,11 +366,9 @@ class VerbalTSQwenV4(nn.Module):
         side_list = []
         scale_length = []
         attr_emb_list = []
-        for i in reversed(range(self.multipatch_num)):
+        for i in range(self.multipatch_num):
             x = self.ts_downsample[i](x_raw)
             side_emb = self.side_downsample[i](side_emb_raw)
-            # print(f"x.shape = {x.shape}")
-
             x_list.append(x)
             side_list.append(side_emb)
             scale_length.append(x.shape[-1])
@@ -388,7 +386,6 @@ class VerbalTSQwenV4(nn.Module):
         # breakpoint()
 
         B, _, Nk, Nl = x_in.shape
-
         _x_in = x_in
         skip = []
         for layer in self.residual_layers:
@@ -408,18 +405,14 @@ class VerbalTSQwenV4(nn.Module):
         all_out = []
         for i in range(len(x_list)):
             x_out = x[:,:,:,start_id:start_id+x_list[i].shape[-1]]
-            # print(f"x_out.shape = {x_out.shape}")
-            x_out = self.patch_decoder[len(x_list)-1-i](x_out)
+            x_out = self.patch_decoder[i](x_out)
             x_out = x_out[:, :, :, :L]
             all_out.append(x_out)
             start_id += x_list[i].shape[-1]
 
         all_out = torch.cat(all_out, dim=1)
         all_out = all_out.permute(0, 2, 3, 1).contiguous()
-        # print(f"all_out.shape = {all_out.shape}")
         all_out = self.multipatch_mixer(all_out)
-        # print(f"all_out.shape = {all_out.shape}")
-        # breakpoint()
         all_out = all_out.reshape((B_raw, n_var, L))
         return all_out, {}
 
