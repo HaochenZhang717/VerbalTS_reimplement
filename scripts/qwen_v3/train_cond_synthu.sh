@@ -1,6 +1,6 @@
 export USE_CAUSAL=false
 
-CUDA_VISIBLE_DEVICES=6 python run_qwen_v3.py \
+CUDA_VISIBLE_DEVICES=7 python run_qwen_v3.py \
     --cond_modal text \
     --training_stage finetune \
     --save_folder ./verbalts_orig_save/synth_u_qwen_v3/text2ts_msmdiffmv \
