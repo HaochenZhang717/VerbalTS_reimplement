@@ -92,7 +92,7 @@ class QwenProjector(nn.Module):
         mvar_attr = self.var_cross_attn(tgt=var_emb, memory=attr.view(B*n_vars, n_segments*seq_len, dim_attr)) # (B*n_var, 1, dim_in)
         mvar_attr = mvar_attr.view(B, n_vars, 1, -1)# (B, n_var, 1, dim_in)
 
-        scale_emb = self.scale_emb_var.expand([B,-1,-1])#(B, n_scale, dim_in)
+        scale_emb = self.scale_emb.expand([B,-1,-1])#(B, n_scale, dim_in)
         mscale_attr = self.scale_cross_attn(tgt=scale_emb, memory=attr.reshape(B, -1, dim_attr))
         mscale_attr = mscale_attr[:,None,:,:].expand([-1,self.n_var,-1,-1])#(B, n_vars,n_scale, dim_in)
 
