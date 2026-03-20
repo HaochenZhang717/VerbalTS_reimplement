@@ -44,7 +44,7 @@ class CNNLSTMPredictor(nn.Module):
         )
 
         # ===== 输出层 =====
-        self.fc = nn.Linear(hidden_dim, 1)
+        self.fc = nn.Linear(hidden_dim, input_dim)
 
     def forward(self, x):
         # x: (B, T, 1)
@@ -123,9 +123,6 @@ def predictive_score_metrics(
             Y = seq[:, 1:, :]
 
             pred = model(X)
-            print(f"pred: {pred.shape}")
-            print(f"Y: {Y.shape}")
-            breakpoint()
             pred = pred.squeeze(0).cpu().numpy()
             Y = Y.squeeze(0).cpu().numpy()
 
