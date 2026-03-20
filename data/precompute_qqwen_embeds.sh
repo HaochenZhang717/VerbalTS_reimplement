@@ -21,19 +21,19 @@ echo "Start precomputing Qwen embeddings..."
 # =========================
 # TRAIN
 # =========================
-python $SCRIPT_PATH \
-    --caps_path $CAPS_PATH \
-    --save_path $SAVE_ROOT/train_embeds_qwen_seq.pt \
-    --split train \
-    --batch_size $BATCH_SIZE \
-    --device $DEVICE
+#python $SCRIPT_PATH \
+#    --caps_path $CAPS_PATH \
+#    --save_path $SAVE_ROOT/train_embeds_qwen_seq.pt \
+#    --split train \
+#    --batch_size $BATCH_SIZE \
+#    --device $DEVICE
 
 # =========================
 # VAL
 # =========================
 python $SCRIPT_PATH \
     --caps_path $CAPS_PATH \
-    --save_path $SAVE_ROOT/val_embeds_qwen_seq.pt \
+    --save_path $SAVE_ROOT/valid_embeds_qwen_seq.pt \
     --split val \
     --batch_size $BATCH_SIZE \
     --device $DEVICE
@@ -41,11 +41,11 @@ python $SCRIPT_PATH \
 # =========================
 # TEST
 # =========================
-python $SCRIPT_PATH \
-    --caps_path $CAPS_PATH \
-    --save_path $SAVE_ROOT/test_embeds_qwen_seq.pt \
-    --split test \
-    --batch_size $BATCH_SIZE \
-    --device $DEVICE
-
-echo "Done!"
+#python $SCRIPT_PATH \
+#    --caps_path $CAPS_PATH \
+#    --save_path $SAVE_ROOT/test_embeds_qwen_seq.pt \
+#    --split test \
+#    --batch_size $BATCH_SIZE \
+#    --device $DEVICE
+#
+#echo "Done!"
