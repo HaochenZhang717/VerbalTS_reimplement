@@ -226,11 +226,33 @@ class MySplit(Dataset):
             text_embed_all_segments.append(text_embed)
         text_embed_all_segments = torch.stack(text_embed_all_segments, dim=0) # (num_segments,C,D)
 
+        caps_qwen = self.my_caps_qwen_embed[image_id]
+
+        example_key = f"seg1_channel0"
+        example_tensor = caps_qwen[example_key]
+        if not isinstance(example_tensor, torch.Tensor):
+            example_tensor = torch.tensor(example_tensor)
+
+        L, D = example_tensor.shape
+        my_caps_qwen_embeds = torch.zeros(
+            self.C, self.num_segments, L, D,
+            dtype=example_tensor.dtype
+        )
+
+        for s in range(self.num_segments):
+            for c in range(self.C):
+                key = f"seg{s + 1}_channel{c}"
+                emb = caps_qwen[key]
+                if not isinstance(emb, torch.Tensor):
+                    emb = torch.tensor(emb)
+                my_caps_qwen_embeds[c, s] = emb
+
+
         item = {
             "ts": ts,
             "ts_len": self.T,
             "text_embedding_all_segments": text_embed_all_segments,
-            "my_caps_qwen_embeds": self.my_caps_qwen_embed[image_id],
+            "my_caps_qwen_embeds": my_caps_qwen_embeds,
             "image_id": image_id,
             "ts_id": ts_id,
             "caps": caps,
