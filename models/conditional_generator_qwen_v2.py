@@ -107,7 +107,7 @@ class ConditionalGeneratorQwenV2(nn.Module):
                 dim_out=diff_configs["diffusion"]["channels"]
             )
             self.cond_projector = self.cond_projector.to(self.device)
-            # self.attr_en = QwenTextEncoder(cond_configs["text"]).to(self.device)
+            self.attr_en = QwenTextEncoder(cond_configs["text"]).to(self.device)
 
 
         elif cond_configs["cond_modal"] == "vae_embed":
@@ -136,9 +136,9 @@ class ConditionalGeneratorQwenV2(nn.Module):
 
     def forward(self, batch, is_train):
         # x, tp, text_embedding_all_segments, moment_embeds = self._unpack_data_cond_gen(batch)
-        x, tp, attr_embed_raw  = self._unpack_data_cond_gen(batch)
+        x, tp, attr_embed_raw = self._unpack_data_cond_gen(batch)
         print(attr_embed_raw.shape)
-        # attr_embed_raw = self.attr_en(text_caps)
+        attr_embed_raw = self.attr_en(attr_embed_raw)
         # attr_len, attr_dim = attr_embed_raw.shape[-2:]
         # B, C, S = text_caps_base_shape
         # attr_embed_raw = attr_embed_raw.view(B, C, S, attr_len, attr_dim)
@@ -196,7 +196,7 @@ class ConditionalGeneratorQwenV2(nn.Module):
         ts, tp, attr_embed_raw = self._unpack_data_cond_gen(batch)
         B, C, T = ts.shape
 
-        # attr_embed_raw = self.attr_en(text_caps)
+        attr_embed_raw = self.attr_en(attr_embed_raw)
         # attr_len, attr_dim = attr_embed_raw.shape[-2:]
         # B, C, S = text_caps_base_shape
         # attr_embed_raw = attr_embed_raw.view(B, C, S, attr_len, attr_dim)

@@ -91,11 +91,11 @@ class QwenTextEncoder(nn.Module):
         self.device = configs["device"]
         self.emb_dim = configs["vl_emb"]
 
-        self.tokenizer = AutoTokenizer.from_pretrained('Qwen/Qwen3-Embedding-0.6B', padding_side='left')
-        self.model = AutoModel.from_pretrained('Qwen/Qwen3-Embedding-0.6B').to(self.device).eval()
-
-        for i, (name, param) in enumerate(self.model.named_parameters()):
-            param.requires_grad = False
+        # self.tokenizer = AutoTokenizer.from_pretrained('Qwen/Qwen3-Embedding-0.6B', padding_side='left')
+        # self.model = AutoModel.from_pretrained('Qwen/Qwen3-Embedding-0.6B').to(self.device).eval()
+        #
+        # for i, (name, param) in enumerate(self.model.named_parameters()):
+        #     param.requires_grad = False
 
         self.text_enc = nn.Sequential(
             nn.Linear(1024, configs["vl_emb_hidden_dim"]),
@@ -105,16 +105,16 @@ class QwenTextEncoder(nn.Module):
         )
 
     def forward(self, text):
-        max_length = 256
-        batch_dict = self.tokenizer(
-            text,
-            padding=True,
-            truncation=True,
-            max_length=max_length,
-            return_tensors="pt",
-        )
-        batch_dict = {k: v.to(self.device) for k, v in batch_dict.items()}
-        with torch.no_grad():
-            outputs = self.model(**batch_dict).last_hidden_state
-        text_co_emb = self.text_enc(outputs)
+        # max_length = 256
+        # batch_dict = self.tokenizer(
+        #     text,
+        #     padding=True,
+        #     truncation=True,
+        #     max_length=max_length,
+        #     return_tensors="pt",
+        # )
+        # batch_dict = {k: v.to(self.device) for k, v in batch_dict.items()}
+        # with torch.no_grad():
+        #     outputs = self.model(**batch_dict).last_hidden_state
+        text_co_emb = self.text_enc(text)
         return text_co_emb
