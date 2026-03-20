@@ -28,7 +28,8 @@ def calculate_disc_two_paths(real_path, fake_path, save_path="disc_results.jsonl
 
     samples_dict = torch.load(fake_path, map_location="cpu", weights_only=False)
 
-    num_samples = min(len(real), len(samples_dict["sampled_ts"][0]))
+    # num_samples = min(len(real), len(samples_dict["sampled_ts"][0]))
+    num_samples = 2850
     real = real[:num_samples]
 
     disc_score_list = []
@@ -80,7 +81,8 @@ def calculate_pred_two_paths(real_path, fake_path, save_path="pred_results.jsonl
 
     samples_dict = torch.load(fake_path, map_location="cpu", weights_only=False)
 
-    num_samples = min(len(real), len(samples_dict["sampled_ts"][0]))
+    # num_samples = min(len(real), len(samples_dict["sampled_ts"][0]))
+    num_samples = 2850
     real = real[:num_samples]
 
     pred_score_list = []
