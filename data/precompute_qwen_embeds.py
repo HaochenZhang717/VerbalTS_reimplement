@@ -1,76 +1,7 @@
 import os
 import json
-import numpy as np
-import random
-from torch.utils.data import Dataset
-import time
-import torch
-
-
-class CustomDataset:
-    def __init__(self, folder, **kwargs):
-        super().__init__()
-        self.folder = folder
-        self._load_meta()
-
-    def _load_meta(self):
-        self.meta = json.load(open(os.path.join(self.folder, "meta.json")))
-        self.attr_list = self.meta["attr_list"]
-        n_attr = len(self.attr_list)
-        self.attr_ids = np.arange(n_attr)
-        self.attr_n_ops = np.array(self.meta["attr_n_ops"])
-
-    def get_split(self, split, *args):
-        return CustomSplit(self.folder, split)
-
-
-class CustomSplit(Dataset):
-    def __init__(self, folder, split="train"):
-        super().__init__()
-        assert split in ("train", "valid", "test"), "Please specify a valid split."
-        self.split = split            
-        self.folder = folder
-        self._load_data()
-
-        print(f"Split: {self.split}, total samples {self.n_samples}.")
-
-    def _load_data(self):
-        ts = np.load(os.path.join(self.folder, self.split+"_ts.npy"))     # [n_samples, n_steps]
-        # attrs = np.load(os.path.join(self.folder, self.split+"_attrs_idx.npy"))  # [n_samples, n_attrs]
-        caps = np.load(os.path.join(self.folder, self.split+fr"_text_caps.npy"), allow_pickle=True)
-
-        verbalts_qwen_embed = torch.load(os.path.join(self.folder, self.split+fr"_verbalts_qwen_embeds.npy"), weights_only=False)
-        verbalts_qwen_embed = verbalts_qwen_embed["embeddings"]
-
-        # self.ts, self.attrs, self.caps = ts, attrs, caps
-        self.ts, self.caps = ts, caps
-        self.verbalts_qwen_embed = verbalts_qwen_embed
-        self.n_samples = self.ts.shape[0]
-        self.n_steps = self.ts.shape[1]
-        self.n_attrs = self.attrs.shape[1]
-        self.time_point = np.arange(self.n_steps)
-
-    def __getitem__(self, idx):
-        cap_id = random.randint(0, len(self.caps[idx])-1)
-        tmp_ts = self.ts[idx]
-        if len(tmp_ts.shape) == 1:
-            tmp_ts = tmp_ts[...,np.newaxis]
-        return {"ts": tmp_ts,
-                "ts_len": tmp_ts.shape[0],
-                "verbal_qwen_embed": self.verbalts_qwen_embed[cap_id],
-                # "attrs": self.attrs[idx],
-                "cap": self.caps[idx][cap_id],
-                "tp": self.time_point}
-
-    def __len__(self):
-        return self.n_samples
-
-
-import os
-import json
 import torch
 import argparse
-import re
 from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModel
 
@@ -141,6 +72,7 @@ def precompute(
 
         caps_list = caps_dict[image_id]  # list of dicts
 
+        # flatten这个sample内部
         keys = []
         texts = []
 
@@ -159,38 +91,15 @@ def precompute(
             embeds = encoder(batch_text)  # (b, L, 1024)
             embeds_all.append(embeds.cpu())
 
-        embeds_all = torch.cat(embeds_all, dim=0)  # (N, L, D)
+        embeds_all = torch.cat(embeds_all, dim=0)
 
         # =========================
-        # 🔥 构造 (C, S, L, D)
+        # 存回 dict
         # =========================
+        result[image_id] = {}
 
-        max_c = 0
-        max_s = 0
-
-        parsed_indices = []
-
-        for k in keys:
-            ch = int(re.search(r"channel(\d+)", k).group(1))
-            seg = int(re.search(r"seg(\d+)", k).group(1)) - 1
-
-            parsed_indices.append((ch, seg))
-
-            max_c = max(max_c, ch)
-            max_s = max(max_s, seg)
-
-        C = max_c + 1
-        S = max_s + 1
-
-        L, D = embeds_all[0].shape
-
-        tensor = torch.zeros(C, S, L, D)
-
-        # 填充
-        for i, (ch, seg) in enumerate(parsed_indices):
-            tensor[ch, seg] = embeds_all[i]
-
-        result[image_id] = tensor  # ⭐ 关键改动
+        for i, k in enumerate(keys):
+            result[image_id][k] = embeds_all[i]  # (L, D)
 
     # =========================
     # 保存
@@ -202,7 +111,8 @@ def precompute(
     # debug
     example = list(result.keys())[0]
     print("Example:", example)
-    print("Tensor shape:", result[example].shape)  # (C, S, L, D)
+    print("Keys:", result[example].keys())
+    print("Shape:", list(result[example].values())[0].shape)
 
 
 # =========================
