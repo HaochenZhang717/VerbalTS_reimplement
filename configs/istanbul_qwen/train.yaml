@@ -1,6 +1,6 @@
 ### Dataset ###
 data:
-  name: mine
+  name: qwen_v3
   ts_path: /playpen/haochenz/LitsDatasets/128_len_ts/istanbul_traffic
   caps_path: /playpen-shared/haochenz/LitsDatasets/128_len_caps_one_per_channel_0309/istanbul_traffic/
   text_embed_path: /playpen-shared/haochenz/LitsDatasets/128_len_caps_one_per_channel_0309/istanbul_traffic/
