@@ -341,7 +341,7 @@ class VerbalTSQwenV4(nn.Module):
             self.attr_embed_upsample.append(
                 SwiGLUFFN(
                     in_features=self.channels,
-                    hidden_features=self.channels * patch_length // 32
+                    hidden_features=self.channels * patch_length // 32,
                     out_features=self.channels * patch_length // 32,
                     bias=True,
                 )
