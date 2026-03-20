@@ -370,8 +370,6 @@ class VerbalTSQwenV4(nn.Module):
     def forward(self, x_raw, tp, attr_emb_raw, diffusion_step):
         B_raw, inputdim, n_var, L = x_raw.shape
 
-        # print("x_raw.shape", x_raw.shape)
-        # print("tp.shape", tp.shape)
         side_emb_raw = self.side_encoder(tp)
         diffusion_emb = self.diffusion_embedding(diffusion_step)
         attr_emb_raw = attr_emb_raw.permute(0, 3, 2, 1)
@@ -387,14 +385,9 @@ class VerbalTSQwenV4(nn.Module):
             side_list.append(side_emb)
             scale_length.append(x.shape[-1])
             patch_length = self.config["base_patch"]*self.config["L_patch_len"]**i
-            print(f"attr_emb_raw.shape = {attr_emb_raw.shape}")
-            # attr_emb_list.append(attr_emb_raw.repeat_interleave(32//patch_length, dim=-1))
-            # attr_emb_patch = self.attr_embed_upsample[i](attr_emb_raw.permute(0, 2, 3, 1)).reshape(B_raw, n_var, -1, self.channels)
             attr_emb_patch = self.attr_embed_upsample[i](attr_emb_raw.permute(0, 2, 3, 1)).reshape(B_raw, n_var, -1, self.channels) # torch.Size([512, 1, 4, 512])
             attr_emb_patch = attr_emb_patch.permute(0,3,1,2) # [512, 1, 4*8, 64] -> [512, 64, 1, 4*8]
             attr_emb_list.append(attr_emb_patch)
-            print(f"attr_emb_patch.shape = {attr_emb_patch.shape}")
-            breakpoint() # [512, 64, 1, 4] -> [512, 1, 4, 64] -> [512, 1, 4, 64n] -> [512, 1, 4n, 64]
 
         x_in = torch.cat(x_list, dim=-1)
         side_in = torch.cat(side_list, dim=-1)
