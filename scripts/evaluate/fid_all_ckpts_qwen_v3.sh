@@ -22,7 +22,7 @@ echo "==========================" >> ${SAVE_FILE}
 # 遍历所有 samples
 # =========================
 
-for sample_path in ${SAMPLE_DIR}/samples_*.pt
+for sample_path in ${SAMPLE_DIR}/real_text_samples_*.pt
 do
     sample_name=$(basename ${sample_path})
 
