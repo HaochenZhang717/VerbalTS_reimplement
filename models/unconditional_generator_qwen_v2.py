@@ -18,6 +18,7 @@ class UnConditionalGeneratorQwenV2(nn.Module):
     def _init_diff(self, configs):
         configs["device"] = self.device
         # self.diff_model = VerbalTSQwen(configs, inputdim=1).to(self.device)
+        breakpoint()
         self.diff_model = VerbalTS(configs, inputdim=1).to(self.device)
 
         # self.diff_model = DiTModel(configs).to(self.device)
