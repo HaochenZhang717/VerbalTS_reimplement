@@ -119,12 +119,9 @@ def get_args():
 # =========================
 # Dataset
 # =========================
-def load_dataset(dict_path, dict_key, idx=-1):
+def load_dataset(dict_path, dict_key):
     data = torch.load(dict_path, weights_only=False)
     data = data[dict_key]
-    if dict_key == "sampled_ts":
-        if idx > -1:
-            data = data[idx]
     if data.shape[1] > data.shape[2]:
         data = data.permute(0,2,1)
     # print(f"Loaded {dict_path}, key: {dict_key}: {data.shape}")
@@ -189,30 +186,30 @@ def main(args):
     fid_list = []
     kid_list = []
     cmmd_list = []
-    for i in range(10):
-        fake_dataset = load_dataset(args.fake_path, "sampled_ts",idx=i)
-        # fake_dataset = load_dataset(args.fake_path, "sampled_ts",idx=i)
-        fake_dataloader = DataLoader(fake_dataset, batch_size=args.batch_size, shuffle=False)
 
-        # ===== extract =====
-        fake_embeddings = extract_embeddings(
-            model,
-            fake_dataloader,
-            device,
-        ) # (N, seq_len, dim)
+    fake_dataset = load_dataset(args.fake_path, "gen_ts")
+    # fake_dataset = load_dataset(args.fake_path, "sampled_ts",idx=i)
+    fake_dataloader = DataLoader(fake_dataset, batch_size=args.batch_size, shuffle=False)
 
-        # print("Real embeddings:", real_embeddings.shape)
-        # print("Fake embeddings:", fake_embeddings.shape)
-        num_embeds = real_embeddings.shape[0]
-        fake_embeddings = fake_embeddings[:num_embeds]
-        # ===== compute FID =====
-        fid = compute_fid(real_embeddings, fake_embeddings)
-        kid = compute_kid(real_embeddings, fake_embeddings)
-        cmmd = compute_cmmd(real_embeddings, fake_embeddings)
+    # ===== extract =====
+    fake_embeddings = extract_embeddings(
+        model,
+        fake_dataloader,
+        device,
+    ) # (N, seq_len, dim)
 
-        fid_list.append(fid)
-        kid_list.append(kid)
-        cmmd_list.append(cmmd)
+    # print("Real embeddings:", real_embeddings.shape)
+    # print("Fake embeddings:", fake_embeddings.shape)
+    num_embeds = real_embeddings.shape[0]
+    fake_embeddings = fake_embeddings[:num_embeds]
+    # ===== compute FID =====
+    fid = compute_fid(real_embeddings, fake_embeddings)
+    kid = compute_kid(real_embeddings, fake_embeddings)
+    cmmd = compute_cmmd(real_embeddings, fake_embeddings)
+
+    fid_list.append(fid)
+    kid_list.append(kid)
+    cmmd_list.append(cmmd)
 
     fid_array = np.array(fid_list)
     kid_array = np.array(kid_list)
