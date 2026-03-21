@@ -13,7 +13,7 @@ do
 
     export WANDB_NAME="qwen_v1_synth_u_cosine-lr${LR}_bs${BS}"
 
-    CUDA_VISIBLE_DEVICES=6 python run_qwen.py \
+    CUDA_VISIBLE_DEVICES=3 python run_qwen.py \
         --cond_modal text \
         --training_stage finetune \
         --save_folder ./sweep/synth_u_qwen_v1/lr_${LR}_bs_${BS} \
