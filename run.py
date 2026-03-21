@@ -109,12 +109,12 @@ def run(training_stage, train_configs, eval_configs, model_diff_configs, model_c
     if only_evaluate == False:
         train(training_stage, train_configs, model_diff_configs, model_cond_configs, eval_configs, output_folder)
 
-    eval_configs["data"]["folder"] = data_folder
-    df, samples = evaluate(training_stage, eval_configs, model_diff_configs, model_cond_configs, output_folder)
-    path = os.path.join(output_folder, "results.csv")
-    df.to_csv(path)
-    torch.save(samples, os.path.join(output_folder, args.samples_name))
-    return df
+    # eval_configs["data"]["folder"] = data_folder
+    # df, samples = evaluate(training_stage, eval_configs, model_diff_configs, model_cond_configs, output_folder)
+    # path = os.path.join(output_folder, "results.csv")
+    # df.to_csv(path)
+    # torch.save(samples, os.path.join(output_folder, args.samples_name))
+    # return df
 
 ##### Arguments #####
 parser = argparse.ArgumentParser(description="TSE")
@@ -206,15 +206,16 @@ for n in range(args.start_runid, args.n_runs):
         model_diff_configs["generator_pretrain_path"] = f"{args.generator_pretrain_path}/{n}/ckpts/model_best_loss.pth"
     else:
         model_diff_configs["generator_pretrain_path"] = ""
-    df = run(args.training_stage, train_configs, eval_configs, model_diff_configs, model_cond_configs, output_folder, data_folder=args.data_folder, only_evaluate=args.only_evaluate)
+    run(args.training_stage, train_configs, eval_configs, model_diff_configs, model_cond_configs, output_folder, data_folder=args.data_folder, only_evaluate=args.only_evaluate)
+    # df = run(args.training_stage, train_configs, eval_configs, model_diff_configs, model_cond_configs, output_folder, data_folder=args.data_folder, only_evaluate=args.only_evaluate)
 
-    n_records = df.shape[0]
-    df.insert(0, column="run", value=[n]*n_records)
-    df_list.append(df)
+    # n_records = df.shape[0]
+    # df.insert(0, column="run", value=[n]*n_records)
+    # df_list.append(df)
 
-df = pd.concat(df_list, ignore_index=True)
-path = os.path.join(save_folder, "results.csv")
-df.to_csv(path)
-
-df_stat = df.groupby(["mode", "sampler", "steps", "n_samples"], as_index=False).agg(["mean", "std"])
-df_stat.to_csv(os.path.join(save_folder, "results_stat_condgen.csv"))
+# df = pd.concat(df_list, ignore_index=True)
+# path = os.path.join(save_folder, "results.csv")
+# df.to_csv(path)
+#
+# df_stat = df.groupby(["mode", "sampler", "steps", "n_samples"], as_index=False).agg(["mean", "std"])
+# df_stat.to_csv(os.path.join(save_folder, "results_stat_condgen.csv"))
