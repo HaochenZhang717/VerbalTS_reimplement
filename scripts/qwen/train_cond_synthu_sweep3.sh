@@ -1,7 +1,7 @@
 export USE_CAUSAL=false
 
 
-LR_LIST=(5e-4)
+LR_LIST=(2e-4)
 BS_LIST=(256)
 
 
