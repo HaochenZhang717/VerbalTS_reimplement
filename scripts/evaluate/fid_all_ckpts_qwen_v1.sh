@@ -7,11 +7,11 @@ export CUDA_VISIBLE_DEVICES=6
 # =========================
 
 # 👉 必须是真实数据（GT）
-REAL_PATH="/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen_v3/text2ts_msmdiffmv/1/real_text_samples_model_best_loss.pt"
+REAL_PATH="/playpen/haochenz/VerbalTS_reimplement/./sweep/synth_u_qwen_v1/lr_1e-3_bs_256/0/samples_during_training_Epoch2199.pt"
 
-SAMPLE_DIR="/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen_v3/text2ts_msmdiffmv/1"
+SAMPLE_DIR="/playpen/haochenz/VerbalTS_reimplement/./sweep/synth_u_qwen_v1/lr_1e-3_bs_256/0"
 
-SAVE_FILE="./fid_results/synth_u_qwen_v3_generation_run1.txt"
+SAVE_FILE="./fid_results/synth_u_qwen_v1_generation_run1.txt"
 
 mkdir -p ./fid_results
 
@@ -22,7 +22,7 @@ echo "==========================" >> ${SAVE_FILE}
 # 遍历所有 ckpt samples
 # =========================
 
-for sample_path in ${SAMPLE_DIR}/real_text_samples_model_*.pt
+for sample_path in ${SAMPLE_DIR}/samples_during_training_Epoch*.pt
 do
     sample_name=$(basename ${sample_path})
 
@@ -39,7 +39,8 @@ do
         --num_layers 2 \
         --num_heads 8 \
         --latent_dim 64 \
-        --save_path "tmp.txt"
+        --save_path "tmp.txt" \
+        --num_samples 2850
     )
 
     echo "${sample_name}" >> ${SAVE_FILE}
