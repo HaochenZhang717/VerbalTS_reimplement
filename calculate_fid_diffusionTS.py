@@ -197,7 +197,7 @@ def main(args):
     cmmd_list = []
     for i in range(10):
 
-        fake_dataset = load_fake_dataset(args.fake_path, "sampled_ts")
+        fake_dataset = load_fake_dataset(args, "sampled_ts")
         fake_dataloader = DataLoader(fake_dataset, batch_size=args.batch_size, shuffle=False)
 
         # ===== extract =====
