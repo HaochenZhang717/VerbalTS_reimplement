@@ -128,9 +128,9 @@ def load_real_dataset(args, dict_key):
         data = data.permute(0,2,1)
     return TensorDataset(data.float())
 
-def load_fake_dataset(args, dict_key):
+def load_fake_dataset(args):
     data = np.load(args.fake_path, allow_pickle=True)
-    data = torch.from_numpy(data[dict_key])
+    data = torch.from_numpy(data)
     data = data[:args.num_samples]
     if data.shape[1] > data.shape[2]:
         data = data.permute(0,2,1)
@@ -197,7 +197,7 @@ def main(args):
     cmmd_list = []
     for i in range(10):
 
-        fake_dataset = load_fake_dataset(args, "sampled_ts")
+        fake_dataset = load_fake_dataset(args)
         fake_dataloader = DataLoader(fake_dataset, batch_size=args.batch_size, shuffle=False)
 
         # ===== extract =====
