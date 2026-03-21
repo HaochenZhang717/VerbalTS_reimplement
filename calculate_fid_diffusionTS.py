@@ -120,18 +120,20 @@ def get_args():
 # =========================
 # Dataset
 # =========================
-def load_dataset(dict_path, dict_key, idx=-1):
-    # data = torch.load(dict_path, weights_only=False)
-    data = np.load(dict_path, allow_pickle=True)
-    breakpoint()
+def load_real_dataset(args, dict_key):
+    data = torch.load(args.real_path, weights_only=False)
     data = data[dict_key]
     data = data[:args.num_samples]
-    if dict_key == "sampled_ts":
-        if idx > -1:
-            data = data[idx]
     if data.shape[1] > data.shape[2]:
         data = data.permute(0,2,1)
-    # print(f"Loaded {dict_path}, key: {dict_key}: {data.shape}")
+    return TensorDataset(data.float())
+
+def load_fake_dataset(args, dict_key):
+    data = np.load(args.fake_path, allow_pickle=True)
+    data = torch.from_numpy(data[dict_key])
+    data = data[:args.num_samples]
+    if data.shape[1] > data.shape[2]:
+        data = data.permute(0,2,1)
     return TensorDataset(data.float())
 
 
@@ -163,7 +165,7 @@ def main(args):
 
     device = args.device if torch.cuda.is_available() else "cpu"
 
-    real_dataset = load_dataset(args.real_path, "real_ts", idx=-1)
+    real_dataset = load_real_dataset(args, "real_ts")
     real_dataloader = DataLoader(real_dataset, batch_size=args.batch_size, shuffle=False)
 
     sample = real_dataset[0][0]
@@ -194,8 +196,8 @@ def main(args):
     kid_list = []
     cmmd_list = []
     for i in range(10):
-        fake_dataset = load_dataset(args.fake_path, "sampled_ts",idx=i)
-        # fake_dataset = load_dataset(args.fake_path, "sampled_ts",idx=i)
+
+        fake_dataset = load_fake_dataset(args.fake_path, "sampled_ts")
         fake_dataloader = DataLoader(fake_dataset, batch_size=args.batch_size, shuffle=False)
 
         # ===== extract =====
@@ -233,5 +235,8 @@ def main(args):
 
 
 if __name__ == "__main__":
-    args = get_args()
-    main(args)
+    # args = get_args()
+    # main(args)
+
+    data = np.load("./baseline_results/diffusionts_results/synth_u/ddpm_fake_synth_u.npy")
+    print(data.shape)
