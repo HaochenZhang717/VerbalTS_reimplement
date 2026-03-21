@@ -5,7 +5,7 @@ LR=1e-3
 BS=256
 export WANDB_NAME="qwen_v4_synth_u_lr${LR}_bs${BS}"
 
-CUDA_VISIBLE_DEVICES=7 python run_qwen_v4.py \
+CUDA_VISIBLE_DEVICES=6 python run_qwen_v4.py \
     --cond_modal text \
     --training_stage finetune \
     --save_folder ./verbalts_orig_save/synth_u_qwen_v4/text2ts_msmdiffmv \
