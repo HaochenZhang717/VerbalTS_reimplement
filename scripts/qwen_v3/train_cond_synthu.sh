@@ -13,7 +13,9 @@ do
   for BS in "${BS_LIST[@]}"
   do
     echo "Running lr=$LR bs=$BS"
+
     export WANDB_NAME="qwen_v3_synth_u_lr${LR}_bs${BS}"
+
     CUDA_VISIBLE_DEVICES=$GPU python run_qwen_v3.py \
         --cond_modal text \
         --training_stage finetune \
