@@ -8,7 +8,9 @@ import numpy as np
 import time
 import random
 
-class UnConditionalGenerator(nn.Module):
+from DiffusionTS_Models.interpretable_diffusion.transformer import Transformer as DiffusionTS_Transformer
+
+class DiffusionTSGenerator(nn.Module):
     def __init__(self, configs):
         super().__init__()
         self.device = configs["device"]
@@ -18,9 +20,12 @@ class UnConditionalGenerator(nn.Module):
     def _init_diff(self, configs):
         input_dim = 1
         configs["device"] = self.device
-        if configs["type"] == "Text2Ts":
-            self.diff_model = VerbalTS(configs, input_dim).to(self.device)
-        
+        # if configs["type"] == "Text2Ts":
+        #     self.diff_model = VerbalTS(configs, input_dim).to(self.device)
+
+        self.diff_model = DiffusionTS_Transformer(
+
+        )
         self.num_steps = configs["num_steps"]
         self.ddpm = DDPMSampler(self.num_steps, configs["beta_start"], configs["beta_end"], configs["schedule"], self.device)
         self.ddim = DDIMSampler(self.num_steps, configs["beta_start"], configs["beta_end"], configs["schedule"], self.device)

@@ -126,6 +126,7 @@ def load_real_dataset(args, dict_key):
     data = data[:args.num_samples]
     if data.shape[1] > data.shape[2]:
         data = data.permute(0,2,1)
+    print(f"data.max: {data.max().item()}, data.min: {data.min().item()}")
     return TensorDataset(data.float())
 
 def load_fake_dataset(args):
@@ -134,6 +135,8 @@ def load_fake_dataset(args):
     data = data[:args.num_samples]
     if data.shape[1] > data.shape[2]:
         data = data.permute(0,2,1)
+    print(f"data.max: {data.max().item()}, data.min: {data.min().item()}")
+
     return TensorDataset(data.float())
 
 
@@ -240,3 +243,8 @@ if __name__ == "__main__":
 
     # data = np.load("./baseline_results/diffusionts_results/synth_u/ddpm_fake_synth_u.npy")
     # print(data.shape)
+    # print(data.mean())
+    # print(data.std())
+    # import matplotlib.pyplot as plt
+    # plt.plot(data[0].flatten())
+    # plt.show()
