@@ -8,8 +8,8 @@ export CUDA_VISIBLE_DEVICES=6
 
 # 👉 必须是真实数据（GT）
 #REAL_PATH="/playpen-shared/haochenz/ts_baselines/ImagenTime/logs/synth_u/conditional-bs=128-lr=0.0001-ch_mult=1-2-attn_res=16-8-4-unet_ch=64-delay=4-32/samples_epoch_1500.pt"
-REAL_PATH="/playpen-shared/haochenz/baseline_results/diffusionts_results/synth_u/ddpm_fake_synth_u.npy"
-SAMPLE_PATH="/playpen-shared/haochenz/baseline_results/diffusionts_results/synth_u/ddpm_fake_synth_u.npy"
+REAL_PATH="/playpen-shared/haochenz/VerbalTS_reimplement/baseline_results/diffusionts_results/synth_u/ddpm_fake_synth_u.npy"
+SAMPLE_PATH="/playpen-shared/haochenz/VerbalTS_reimplement/baseline_results/diffusionts_results/synth_u/ddpm_fake_synth_u.npy"
 SAVE_FILE="./fid_results/synth_u_diffusion_ts.txt"
 
 mkdir -p ./fid_results
