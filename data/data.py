@@ -367,21 +367,21 @@ class QwenV3Split(Dataset):
 
 
         self.caps = None
-        if self.caps_path != "none":
-            if not self.caps_path.endswith(".jsonl"):
-                caps_dict = {}
-                with open(f"{self.caps_path}/{split}_caps_ready.jsonl", "r") as f:
-                    for line in f:
-                        item = json.loads(line)
-                        caps_dict[item["id"]] = item["captions"]
-                self.caps = caps_dict
-            else:
-                caps_dict = {}
-                with open(self.caps_path, "r") as f:
-                    for line in f:
-                        item = json.loads(line)
-                        caps_dict[item["id"]] = item["captions"]
-                self.caps = caps_dict
+        # if self.caps_path != "none":
+        #     if not self.caps_path.endswith(".jsonl"):
+        #         caps_dict = {}
+        #         with open(f"{self.caps_path}/{split}_caps_ready.jsonl", "r") as f:
+        #             for line in f:
+        #                 item = json.loads(line)
+        #                 caps_dict[item["id"]] = item["captions"]
+        #         self.caps = caps_dict
+        #     else:
+        #         caps_dict = {}
+        #         with open(self.caps_path, "r") as f:
+        #             for line in f:
+        #                 item = json.loads(line)
+        #                 caps_dict[item["id"]] = item["captions"]
+        #         self.caps = caps_dict
 
         assert self.T % self.num_segments == 0
 
