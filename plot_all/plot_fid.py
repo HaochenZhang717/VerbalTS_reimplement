@@ -59,11 +59,11 @@ def plot_fid(data, save_name):
 
 
 if __name__ == "__main__":
-    path = "../fid_results/synth_u_qwen_v3_generation_run1.txt"  # 改成你的路径
+    path = "../fid_results/synth_u_imagen_time.txt"  # 改成你的路径
     data = parse_fid_file(path)
 
     print("Parsed data:")
     for d in data:
         print(d)
 
-    plot_fid(data, save_name="synth_u_qwen_v3_generation_run_1.png")
+    plot_fid(data, save_name="synth_u_imagen_time.png")
