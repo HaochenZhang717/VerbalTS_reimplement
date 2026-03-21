@@ -1,5 +1,9 @@
 export USE_CAUSAL=false
-export WANDB_NAME="qwen_v4_synth_u"
+
+
+LR=1e-3
+BS=256
+export WANDB_NAME="qwen_v4_synth_u_lr${LR}_bs${BS}"
 
 CUDA_VISIBLE_DEVICES=7 python run_qwen_v4.py \
     --cond_modal text \
@@ -15,7 +19,8 @@ CUDA_VISIBLE_DEVICES=7 python run_qwen_v4.py \
     --L_patch_len 2 \
     --base_patch 4 \
     --epochs 2500 \
-    --batch_size 512 \
+    --lr ${LR} \
+    --batch_size ${BS} \
     --clip_cache_path "" \
     --samples_name "real_text_samples.pt" \
     --model_ckpt_name "model_best_loss.pth"
