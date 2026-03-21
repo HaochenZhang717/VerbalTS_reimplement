@@ -235,8 +235,8 @@ def main(args):
 
 
 if __name__ == "__main__":
-    # args = get_args()
-    # main(args)
+    args = get_args()
+    main(args)
 
-    data = np.load("./baseline_results/diffusionts_results/synth_u/ddpm_fake_synth_u.npy")
-    print(data.shape)
+    # data = np.load("./baseline_results/diffusionts_results/synth_u/ddpm_fake_synth_u.npy")
+    # print(data.shape)
