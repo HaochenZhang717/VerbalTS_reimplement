@@ -94,6 +94,8 @@ class Trainer:
             self._train_epoch(epoch_no)
             if self.valid_loader is not None and (epoch_no + 1) % self.valid_epoch_interval == 0:
                 self.valid(epoch_no)
+
+            if (epoch_no + 1) % self.display_epoch_interval == 0:
                 self.evaluate(epoch_no)
 
     def evaluate(self, epoch_no):
