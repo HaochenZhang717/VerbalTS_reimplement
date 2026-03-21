@@ -18,8 +18,8 @@ class Trainer:
     def __init__(self, configs, eval_configs, dataset, model):
         self._init_cfgs(configs)
         self._init_model(model)
-        self._init_opt()
         self._init_data(dataset)
+        self._init_opt()
         self._init_eval(eval_configs)
         self._best_valid_loss = 1e10
         wandb.init(
@@ -68,13 +68,19 @@ class Trainer:
         self.ema_model.eval()
         self.ema_decay = 0.999  # 可以调 0.999~0.9999
 
-
     def _init_opt(self):
         self.opt = Adam(self.model.parameters(), lr=self.lr, weight_decay=1e-6)
-        p1 = int(0.75 * self.n_epochs)
-        p2 = int(0.9 * self.n_epochs)
-        self.lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(
-            self.opt, milestones=[p1, p2], gamma=0.1)
+
+        self.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            self.opt,
+            T_max=self.n_epochs * self.itr_per_epoch,
+            eta_min=0.01 * self.lr
+        )
+
+        # p1 = int(0.75 * self.n_epochs)
+        # p2 = int(0.9 * self.n_epochs)
+        # self.lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(
+        #     self.opt, milestones=[p1, p2], gamma=0.1)
 
     def _init_data(self, dataset):
         self.dataset = dataset
@@ -120,15 +126,14 @@ class Trainer:
                 loss_dict["all"].backward()
                 self.opt.step()
                 self.update_ema()
+                self.lr_scheduler.step()
 
                 avg_loss += loss_dict["all"].item()
-                # for k in loss_dict.keys():
-                #     self.tf_writer.add_scalar(fr"Train/{k}", loss_dict[k].item(), self._global_batch_no)
 
                 if batch_no >= self.itr_per_epoch:
                     break
-            self.lr_scheduler.step()
-            avg_loss /= len(self.train_loader)
+
+            avg_loss /= (batch_no + 1)
             # self.tf_writer.add_scalar("Train/epoch_loss", avg_loss, epoch_no)
             # self.tf_writer.add_scalar("Train/lr", self.opt.param_groups[0]['lr'], epoch_no)
             end_time = time.time()
@@ -140,6 +145,7 @@ class Trainer:
 
                 wandb.log({
                     "train/epoch_loss": avg_loss,
+                    "train/learning_rate": self.opt.param_groups[0]['lr'],
                     "epoch": epoch_no
                 })
 
@@ -154,7 +160,7 @@ class Trainer:
                 loss_dict = self.ema_model(valid_batch, is_train=False)
                 avg_loss_valid += loss_dict["all"].item()
 
-        avg_loss_valid = avg_loss_valid/len(self.valid_loader)
+        avg_loss_valid = avg_loss_valid/(batch_no + 1)
         # self.tf_writer.add_scalar("Valid/epoch_loss", avg_loss_valid, epoch_no)
         wandb.log({
             "valid/loss": avg_loss_valid,
