@@ -1,7 +1,7 @@
 export USE_CAUSAL=false
 
 
-LR_LIST=(5e-4)
+LR_LIST=(1e-3)
 BS_LIST=(256)
 
 
@@ -26,7 +26,7 @@ do
         --multipatch_num 3 \
         --L_patch_len 2 \
         --base_patch 4 \
-        --epochs 2500 \
+        --epochs 5000 \
         --batch_size ${BS} \
         --lr ${LR} \
         --clip_cache_path "" \

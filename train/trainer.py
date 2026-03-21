@@ -73,7 +73,7 @@ class Trainer:
 
         self.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
             self.opt,
-            T_max=self.n_epochs * self.itr_per_epoch,
+            T_max=self.n_epochs,
             eta_min=0.01 * self.lr
         )
 
@@ -126,7 +126,6 @@ class Trainer:
                 loss_dict["all"].backward()
                 self.opt.step()
                 self.update_ema()
-                self.lr_scheduler.step()
 
                 avg_loss += loss_dict["all"].item()
 
@@ -137,7 +136,8 @@ class Trainer:
             # self.tf_writer.add_scalar("Train/epoch_loss", avg_loss, epoch_no)
             # self.tf_writer.add_scalar("Train/lr", self.opt.param_groups[0]['lr'], epoch_no)
             end_time = time.time()
-            
+            self.lr_scheduler.step()
+
             if (epoch_no+1)%self.display_epoch_interval==0:
                 print("Epoch:", epoch_no,
                       "Loss:", avg_loss,
