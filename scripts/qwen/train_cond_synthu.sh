@@ -16,9 +16,8 @@ CUDA_VISIBLE_DEVICES=6 python run_qwen.py \
     --epochs 2500 \
     --batch_size 512 \
     --clip_cache_path "" \
-    --samples_name "fake_text_samples.pt" \
-    --model_ckpt_name "model_best_loss.pth" \
-    --only_evaluate True
+    --samples_name "real_text_samples.pt" \
+    --model_ckpt_name "model_best_loss.pth"
 
 
 #CUDA_VISIBLE_DEVICES=2 python run_qwen.py \
