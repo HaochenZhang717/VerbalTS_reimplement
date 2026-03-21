@@ -1,8 +1,8 @@
 export USE_CAUSAL=false
 
 
-LR=8e-4
-BS=256
+LR=5e-4
+BS=128
 export WANDB_NAME="qwen_v4_synth_u_lr${LR}_bs${BS}"
 
 CUDA_VISIBLE_DEVICES=6 python run_qwen_v4.py \
