@@ -3,7 +3,7 @@
 export USE_CAUSAL=false
 
 
-LR_LIST=(1e-4 5e-4 1e-3)
+LR_LIST=(1e-3 2e-3)
 BS_LIST=(128 256 512)
 
 GPU=7
