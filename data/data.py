@@ -48,7 +48,7 @@ class CustomSplit(Dataset):
 
         self.n_samples = self.ts.shape[0]
         self.n_steps = self.ts.shape[1]
-        self.n_attrs = self.attrs.shape[1]
+        # self.n_attrs = self.attrs.shape[1]
         self.time_point = np.arange(self.n_steps)
 
     def __getitem__(self, idx):
