@@ -21,18 +21,6 @@ export CUDA_VISIBLE_DEVICES=1
 
 
 
-REAL_PATH="/playpen-shared/haochenz/ts_baselines/ImagenTime/logs/synth_u/conditional-bs=128-lr=0.0001-ch_mult=1-2-attn_res=16-8-4-unet_ch=64-delay=4-32/samples_epoch_1500.pt"
-FAKE_PATH="/playpen-shared/haochenz/ts_baselines/ImagenTime/logs/synth_u/conditional-bs=128-lr=0.0001-ch_mult=1-2-attn_res=16-8-4-unet_ch=64-delay=4-32/samples_epoch_1500.pt"
-python calculate_fid.py \
-    --real_path ${REAL_PATH} \
-    --fake_path ${FAKE_PATH} \
-    --ckpt_path "./fid_vae_ckpts/vae_synth_u/best.pt" \
-    --batch_size 128 \
-    --hidden_size 128 \
-    --num_layers 2 \
-    --num_heads 8 \
-    --latent_dim 64 \
-    --save_path "./fid_results/uncond_generation.txt"
 
 
 

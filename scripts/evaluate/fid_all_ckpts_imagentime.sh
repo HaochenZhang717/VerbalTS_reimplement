@@ -7,11 +7,12 @@ export CUDA_VISIBLE_DEVICES=6
 # =========================
 
 # 👉 必须是真实数据（GT）
-REAL_PATH="/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen_v3/text2ts_msmdiffmv/1/real_text_samples_model_best_loss.pt"
+REAL_PATH="/playpen-shared/haochenz/ts_baselines/ImagenTime/logs/synth_u/conditional-bs=128-lr=0.0001-ch_mult=1-2-attn_res=16-8-4-unet_ch=64-delay=4-32/samples_epoch_1500.pt"
 
-SAMPLE_DIR="/playpen/haochenz/VerbalTS_reimplement/verbalts_orig_save/synth_u_qwen_v3/text2ts_msmdiffmv/1"
+SAMPLE_DIR="/playpen-shared/haochenz/ts_baselines/ImagenTime/logs/synth_u/conditional-bs=128-lr=0.0001-ch_mult=1-2-attn_res=16-8-4-unet_ch=64-delay=4-32"
 
-SAVE_FILE="./fid_results/synth_u_qwen_v3_generation_run1.txt"
+
+SAVE_FILE="./fid_results/synth_u_imagen_time.txt"
 
 mkdir -p ./fid_results
 
@@ -22,7 +23,7 @@ echo "==========================" >> ${SAVE_FILE}
 # 遍历所有 ckpt samples
 # =========================
 
-for sample_path in ${SAMPLE_DIR}/real_text_samples_model_*.pt
+for sample_path in ${SAMPLE_DIR}/samples_epoch_*.pt
 do
     sample_name=$(basename ${sample_path})
 
@@ -30,7 +31,7 @@ do
     echo "Evaluating: ${sample_name}"
     echo "======================================"
 
-    result=$(python calculate_fid.py \
+    result=$(python calculate_fid_imagentime.py \
         --real_path ${REAL_PATH} \
         --fake_path ${sample_path} \
         --ckpt_path "./fid_vae_ckpts/vae_synth_u/best.pt" \
@@ -39,6 +40,7 @@ do
         --num_layers 2 \
         --num_heads 8 \
         --latent_dim 64 \
+        --num_samples 2850 \
         --save_path "tmp.txt"
     )
 
