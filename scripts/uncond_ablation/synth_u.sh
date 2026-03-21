@@ -26,6 +26,7 @@ do
     --batch_size ${BS} \
     --lr ${LR} \
     --clip_cache_path "" \
+    --n_runs 1 \
     --samples_name "samples.pt"
 done
 done
