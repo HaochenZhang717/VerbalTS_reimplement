@@ -157,7 +157,7 @@ def main(args):
 
     device = args.device if torch.cuda.is_available() else "cpu"
 
-    real_dataset = load_dataset(args.real_path, "real_ts", idx=-1)
+    real_dataset = load_dataset(args.real_path, "real_ts")
     real_dataloader = DataLoader(real_dataset, batch_size=args.batch_size, shuffle=False)
 
     sample = real_dataset[0][0]
