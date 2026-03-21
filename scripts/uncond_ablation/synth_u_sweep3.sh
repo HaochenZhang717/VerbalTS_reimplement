@@ -9,7 +9,7 @@ do
 
     export WANDB_NAME="uncond_synth_u_cosine-lr${LR}_bs${BS}"
 
-    CUDA_VISIBLE_DEVICES=4 python run.py \
+    CUDA_VISIBLE_DEVICES=7 python run.py \
     --cond_modal text \
     --training_stage pretrain \
     --save_folder ./sweep/uncond_synth_u/text2ts_msmdiffmv \
