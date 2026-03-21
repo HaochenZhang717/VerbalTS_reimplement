@@ -1,5 +1,5 @@
-LR_LIST=(5e-4 2e-4)
-BS_LIST=(256 512)
+LR_LIST=(5e-4)
+BS_LIST=(256)
 
 for LR in "${LR_LIST[@]}"
 do
