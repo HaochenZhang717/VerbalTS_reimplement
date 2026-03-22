@@ -37,7 +37,7 @@ export USE_CAUSAL=false
 
 
 
-LR_LIST=(1e-3)
+LR_LIST=(4e-5)
 BS_LIST=(128)
 
 LAYERS=10
