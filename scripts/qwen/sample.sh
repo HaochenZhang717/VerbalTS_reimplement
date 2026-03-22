@@ -1,7 +1,7 @@
 export CUDA_VISIBLE_DEVICES=4
 
 CKPT_DIR="/playpen/haochenz/VerbalTS_reimplement/sweep/synth_u_qwen_v1/lr_1e-3_bs_256/0/ckpts"
-SAVE_ROOT="/playpen/haochenz/VerbalTS_reimplement/sweep/synth_u_qwen_v1/lr_1e-3_bs_256/samples"
+SAVE_ROOT="/playpen/haochenz/VerbalTS_reimplement/sweep/synth_u_qwen_v1/lr_1e-3_bs_256/0"
 
 LAYERS=10
 CHANNELS=128
