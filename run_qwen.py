@@ -93,11 +93,15 @@ def _evaluate_cond_gen(evaluator, sampler="ddim", n_sample=10):
     df["steps"].astype(int)
     return df, result_ts_dict
 
+
 def run(training_stage, train_configs, eval_configs, model_diff_configs, model_cond_configs, output_folder, data_folder="", only_evaluate=False):
     if only_evaluate == False:
         train(training_stage, train_configs, model_diff_configs, model_cond_configs, eval_configs, output_folder)
+    else:
+        _, samples = evaluate(training_stage, eval_configs, model_diff_configs, model_cond_configs, output_folder)
+        torch.save(samples, os.path.join(output_folder, args.samples_name))
 
-    # eval_configs["data"]["folder"] = data_folder
+# eval_configs["data"]["folder"] = data_folder
     # df, samples = evaluate(training_stage, eval_configs, model_diff_configs, model_cond_configs, output_folder)
     # path = os.path.join(output_folder, "results.csv")
     # df.to_csv(path)
