@@ -27,7 +27,7 @@ do
         --evaluate_config_path configs/synth_u_qwen/evaluate.yaml \
         --data_folder /playpen/haochenz/LitsDatasets/128_len_ts/synthetic_u \
         --clip_folder "" \
-        --multipatch_num 3 \
+        --multipatch_num 4 \
         --L_patch_len 2 \
         --base_patch 4 \
         --epochs 2500 \
