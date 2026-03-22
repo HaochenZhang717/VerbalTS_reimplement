@@ -77,12 +77,20 @@ class Trainer:
         #     eta_min=0.01 * self.lr
         # )
 
-        p1 = int(0.2 * self.n_epochs)
-        p2 = int(0.4 * self.n_epochs)
-        p3 = int(0.6 * self.n_epochs)
-        p4 = int(0.8 * self.n_epochs)
-        self.lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(
-            self.opt, milestones=[p1, p2, p3, p4], gamma=0.33)
+        # p1 = int(0.2 * self.n_epochs)
+        # p2 = int(0.4 * self.n_epochs)
+        # p3 = int(0.6 * self.n_epochs)
+        # p4 = int(0.8 * self.n_epochs)
+        # self.lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(
+        #     self.opt, milestones=[p1, p2, p3, p4], gamma=0.33)
+
+        self.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+            self.opt,
+            T_0=100,  # 第一个周期长度
+            T_mult=1,  # 每个周期长度倍增
+            eta_min=0.1 * self.lr  # 最小学习率
+        )
+
 
     def _init_data(self, dataset):
         self.dataset = dataset
@@ -113,7 +121,6 @@ class Trainer:
         _, samples = self.evaluator.evaluate(mode="cond_gen", sampler="ddim", save_pred=False)
         path = os.path.join(fr"{self.output_folder}", f"samples_during_training_Epoch{epoch_no}.pt")
         torch.save(samples, path)
-
 
     def _train_epoch(self, epoch_no):
             start_time = time.time()
