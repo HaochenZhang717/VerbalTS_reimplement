@@ -38,7 +38,7 @@ export USE_CAUSAL=false
 
 
 LR_LIST=(1e-3)
-BS_LIST=(256)
+BS_LIST=(128)
 
 LAYERS=8
 CHANNELS=128
