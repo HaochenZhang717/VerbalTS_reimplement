@@ -20,7 +20,7 @@ do
     CUDA_VISIBLE_DEVICES=6 python run_qwen.py \
         --cond_modal text \
         --training_stage finetune \
-        --save_folder ./sweep/synth_u_qwen_v1/lr_${LR}_bs_${BS} \
+        --save_folder ./sweep/synth_u_qwen_v1/lr_${LR}_bs_${BS}-L${LAYERS}C${CHANNELS}H${NHEADS}D${DIFFUSION_EMBEDDING_DIM}-dropout0.1 \
         --model_diff_config_path configs/synth_u_qwen/diff/model_text2ts_dep.yaml \
         --model_cond_config_path configs/synth_u_qwen/cond/text_msmdiffmv.yaml \
         --train_config_path configs/synth_u_qwen/train.yaml \
