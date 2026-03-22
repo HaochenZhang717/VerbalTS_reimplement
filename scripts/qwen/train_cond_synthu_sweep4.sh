@@ -67,7 +67,7 @@ do
         --multipatch_num 3 \
         --L_patch_len 2 \
         --base_patch 4 \
-        --epochs 5000 \
+        --epochs 2500 \
         --layers ${LAYERS} \
         --channels ${CHANNELS} \
         --nheads ${NHEADS} \
