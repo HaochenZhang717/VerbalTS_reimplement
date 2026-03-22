@@ -7,7 +7,7 @@ export CUDA_VISIBLE_DEVICES=6
 # =========================
 
 # 👉 必须是真实数据（GT）
-REAL_PATH="/playpen/haochenz/VerbalTS_reimplement/./sweep/synth_u_qwen_v1/lr_1e-3_bs_256/0/samples_during_training_Epoch2199.pt"
+REAL_PATH="/playpen/haochenz/VerbalTS_reimplement/./sweep/synth_u_qwen_v1/lr_1e-3_bs_256/0/real_text_samples_model_epoch_2499.pt"
 
 SAMPLE_DIR="/playpen/haochenz/VerbalTS_reimplement/./sweep/synth_u_qwen_v1/lr_1e-3_bs_256/0"
 
@@ -22,7 +22,7 @@ echo "==========================" >> ${SAVE_FILE}
 # 遍历所有 ckpt samples
 # =========================
 
-for sample_path in ${SAMPLE_DIR}/samples_during_training_Epoch*.pt
+for sample_path in ${SAMPLE_DIR}/real_text_samples_model_epoch_*.pt
 do
     sample_name=$(basename ${sample_path})
 
