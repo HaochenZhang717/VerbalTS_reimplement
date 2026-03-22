@@ -11,7 +11,7 @@ REAL_PATH="/playpen/haochenz/VerbalTS_reimplement/sweep/synth_u_qwen_v1/lr_1e-3_
 
 SAMPLE_DIR="/playpen/haochenz/VerbalTS_reimplement/sweep/synth_u_qwen_v1/lr_1e-3_bs_256/0"
 
-SAVE_FILE="./fid_results/synth_u_qwen_v1_generation_run1.txt"
+SAVE_FILE="./fid_results/synth_u_qwen_v1_generation_L10D128H8.txt"
 
 mkdir -p ./fid_results
 
