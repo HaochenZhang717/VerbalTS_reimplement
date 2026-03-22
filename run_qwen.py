@@ -174,6 +174,7 @@ model_diff_configs["diffusion"]["layers"] = args.layers
 model_diff_configs["diffusion"]["channels"] = args.channels
 model_diff_configs["diffusion"]["nheads"] = args.nheads
 model_diff_configs["diffusion"]["diffusion_embedding_dim"] = args.diffusion_embedding_dim
+model_cond_configs["text"]["vl_emb"] = args.channels
 
 if "text" in args.model_cond_config_path and args.training_stage in ["finetune", "finetune_debug"]:
     model_cond_configs["text"]["output_type"] = args.text_output_type
