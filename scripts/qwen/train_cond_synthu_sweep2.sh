@@ -70,7 +70,7 @@ do
         --layers ${LAYERS} \
         --channels ${CHANNELS} \
         --nheads ${NHEADS} \
-        --diffusion_embeding_dim ${DIFFUSION_EMBEDDING_DIM} \
+        --diffusion_embedding_dim ${DIFFUSION_EMBEDDING_DIM} \
         --batch_size ${BS} \
         --lr ${LR} \
         --clip_cache_path "" \
