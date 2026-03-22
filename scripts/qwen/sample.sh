@@ -1,4 +1,5 @@
 export CUDA_VISIBLE_DEVICES=4
+export USE_CAUSAL=false
 
 CKPT_DIR="/playpen/haochenz/VerbalTS_reimplement/sweep/synth_u_qwen_v1/lr_1e-3_bs_256/0/ckpts"
 SAVE_ROOT="/playpen/haochenz/VerbalTS_reimplement/sweep/synth_u_qwen_v1/lr_1e-3_bs_256"
