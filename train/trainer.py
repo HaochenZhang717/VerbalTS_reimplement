@@ -68,6 +68,9 @@ class Trainer:
         self.ema_model.eval()
         self.ema_decay = 0.999  # 可以调 0.999~0.9999
 
+        total_params = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
+        print(f"Trainable parameters: {total_params}")
+
     def _init_opt(self):
         self.opt = Adam(self.model.parameters(), lr=self.lr, weight_decay=1e-6)
 

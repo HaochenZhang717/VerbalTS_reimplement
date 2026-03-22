@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 def parse_fid_file(path, score_name="FID"):
     with open(path, "r") as f:
         text = f.read()
-    breakpoint()
+    # breakpoint()
     blocks = text.split("--------------------------")
 
     data = []
@@ -60,18 +60,7 @@ def plot_fid(data, save_name):
 
 
 if __name__ == "__main__":
-    # path = "../fid_results/synth_u_imagen_time.txt"  # 改成你的路径
-    # data_fid = parse_fid_file(path, score_name="FID")
-    # data_kid = parse_fid_file(path, score_name="KID")
-    #
-    # # print("Parsed data:")
-    # # for d in data:
-    # #     print(d)
-    #
-    # plot_fid(data_fid, save_name="synth_u_imagen_time_fid.png")
-    # plot_fid(data_kid, save_name="synth_u_imagen_time_kid.png")
-
-    path = "../fid_results/synth_u_qwen_v1_generation_run1.txt"  # 改成你的路径
+    path = "../fid_results/synth_u_imagen_time.txt"  # 改成你的路径
     data_fid = parse_fid_file(path, score_name="FID")
     data_kid = parse_fid_file(path, score_name="KID")
 
@@ -79,5 +68,16 @@ if __name__ == "__main__":
     for d in data_fid:
         print(d)
 
-    plot_fid(data_fid, save_name="synth_u_qwen_v1_generation_run1_fid.png")
-    plot_fid(data_kid, save_name="synth_u_qwen_v1_generation_run1_kid.png")
+    plot_fid(data_fid, save_name="synth_u_imagen_time_fid.png")
+    plot_fid(data_kid, save_name="synth_u_imagen_time_kid.png")
+
+    # path = "../fid_results/synth_u_qwen_v1_generation_run1.txt"  # 改成你的路径
+    # data_fid = parse_fid_file(path, score_name="FID")
+    # data_kid = parse_fid_file(path, score_name="KID")
+    #
+    # print("Parsed data:")
+    # for d in data_fid:
+    #     print(d)
+    #
+    # plot_fid(data_fid, save_name="synth_u_qwen_v1_generation_run1_fid.png")
+    # plot_fid(data_kid, save_name="synth_u_qwen_v1_generation_run1_kid.png")
