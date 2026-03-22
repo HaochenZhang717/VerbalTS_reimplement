@@ -2,8 +2,12 @@ export USE_CAUSAL=false
 
 
 LR_LIST=(1e-3)
-BS_LIST=(128)
+BS_LIST=(256)
 
+LAYERS=6
+CHANNELS=64
+NHEADS=8
+DIFFUSION_EMBEDDING_DIM=128
 
 for LR in "${LR_LIST[@]}"
 do
@@ -11,7 +15,7 @@ do
   do
     echo "Running lr=$LR bs=$BS"
 
-    export WANDB_NAME="qwen_v1_synth_u_cosine-lr${LR}_bs${BS}"
+    export WANDB_NAME="qwen_v1_synth_u_cosine-lr${LR}_bs${BS}-L${LAYERS}C${CHANNELS}H${NHEADS}D${DIFFUSION_EMBEDDING_DIM}-dropout0.1"
 
     CUDA_VISIBLE_DEVICES=7 python run_qwen.py \
         --cond_modal text \
@@ -26,7 +30,11 @@ do
         --multipatch_num 3 \
         --L_patch_len 2 \
         --base_patch 4 \
-        --epochs 5000 \
+        --epochs 2500 \
+        --layers ${LAYERS} \
+        --channels ${CHANNELS} \
+        --nheads ${NHEADS} \
+        --diffusion_embeding_dim ${DIFFUSION_EMBEDDING_DIM} \
         --batch_size ${BS} \
         --lr ${LR} \
         --clip_cache_path "" \

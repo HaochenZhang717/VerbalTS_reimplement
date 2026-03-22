@@ -71,16 +71,18 @@ class Trainer:
     def _init_opt(self):
         self.opt = Adam(self.model.parameters(), lr=self.lr, weight_decay=1e-6)
 
-        self.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-            self.opt,
-            T_max=self.n_epochs,
-            eta_min=0.01 * self.lr
-        )
+        # self.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        #     self.opt,
+        #     T_max=self.n_epochs,
+        #     eta_min=0.01 * self.lr
+        # )
 
-        # p1 = int(0.75 * self.n_epochs)
-        # p2 = int(0.9 * self.n_epochs)
-        # self.lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(
-        #     self.opt, milestones=[p1, p2], gamma=0.1)
+        p1 = int(0.2 * self.n_epochs)
+        p2 = int(0.4 * self.n_epochs)
+        p3 = int(0.6 * self.n_epochs)
+        p4 = int(0.8 * self.n_epochs)
+        self.lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(
+            self.opt, milestones=[p1, p2, p3, p4], gamma=0.33)
 
     def _init_data(self, dataset):
         self.dataset = dataset

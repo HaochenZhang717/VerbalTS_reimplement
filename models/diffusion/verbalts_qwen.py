@@ -20,8 +20,8 @@ class NormCausalAttention(nn.Module):
             num_heads: int,
             qkv_bias: bool = False,
             qk_norm: bool = False,
-            attn_drop: float = 0.,
-            proj_drop: float = 0.,
+            attn_drop: float = 0.1,
+            proj_drop: float = 0.1,
             norm_layer: nn.Module = nn.LayerNorm,
     ) -> None:
         super().__init__()
