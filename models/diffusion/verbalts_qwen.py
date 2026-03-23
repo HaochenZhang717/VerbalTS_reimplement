@@ -364,34 +364,34 @@ class VerbalTSQwen(nn.Module):
     def forward(self, x_raw, tp, attr_emb_raw, diffusion_step):
         B_raw, inputdim, n_var, L = x_raw.shape
 
-        # print("x_raw.shape", x_raw.shape)
-        # print("tp.shape", tp.shape)
         side_emb_raw = self.side_encoder(tp)
         diffusion_emb = self.diffusion_embedding(diffusion_step)
-        attr_emb_raw = attr_emb_raw.permute(0, 3, 2, 1)
+
 
         x_list = []
         side_list = []
         scale_length = []
-        attr_emb_list = []
+        # attr_emb_list = []
         for i in reversed(range(self.multipatch_num)):
             x = self.ts_downsample[i](x_raw)
             side_emb = self.side_downsample[i](side_emb_raw)
-            # print(f"x.shape = {x.shape}")
-
             x_list.append(x)
             side_list.append(side_emb)
             scale_length.append(x.shape[-1])
-            patch_length = self.config["base_patch"]*self.config["L_patch_len"]**i
-            attr_emb_list.append(attr_emb_raw.repeat_interleave(32//patch_length, dim=-1))
-
         x_in = torch.cat(x_list, dim=-1)
         side_in = torch.cat(side_list, dim=-1)
-        attr_emb = torch.cat(attr_emb_list, dim=-1)
-        # print(f"x_in.shape = {x_in.shape}")
-        # print(f"side_in.shape = {side_in.shape}")
-        # print(f"attr_emb.shape = {attr_emb.shape}")
-        # breakpoint()
+
+
+        if attr_emb_raw is not None:
+            attr_emb_raw = attr_emb_raw.permute(0, 3, 2, 1)
+            attr_emb_list = []
+            for i in reversed(range(self.multipatch_num)):
+                patch_length = self.config["base_patch"] * self.config["L_patch_len"] ** i
+                attr_emb_list.append(attr_emb_raw.repeat_interleave(32 // patch_length, dim=-1))
+            attr_emb = torch.cat(attr_emb_list, dim=-1)
+        else:
+            attr_emb = torch.zeros_like(x_in)
+
 
         B, _, Nk, Nl = x_in.shape
 

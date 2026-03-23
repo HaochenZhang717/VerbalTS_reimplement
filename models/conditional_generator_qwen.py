@@ -81,7 +81,12 @@ class ConditionalGeneratorQwen(nn.Module):
                 attr_embed = self.cond_projector(attr_embed_raw, t)
             else:
                 raise NotImplementedError
-            loss = self.generator._noise_estimation_loss(x, tp, attr_embed, t)
+
+            cfg_uncond_ratio = os.getenv("CFG_RATIO", 0.0)
+            num_cond = (1 - cfg_uncond_ratio) * B
+            loss_cond = self.generator._noise_estimation_loss(x[:num_cond], tp[:num_cond], attr_embed[:num_cond], t[:num_cond])
+            loss_uncond = self.generator._noise_estimation_loss(x[num_cond:], tp[num_cond:], None, t[num_cond:])
+            breakpoint()
             return loss
 
         loss_dict = {}
