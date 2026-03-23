@@ -24,9 +24,7 @@ class UnConditionalGeneratorQwenV5(nn.Module):
         # ====== step 2: sample noise ======
         noise = torch.randn_like(x)
         # ====== step 3: construct z_t (JiT style) ======
-        print(f"noise shape: {noise.shape}")
-        print(f"t_float: {t_float.shape}")
-        z_t = t_float * x + (1 - t_float) * noise
+        z_t = t_float[:, None, None] * x + (1 - t_float[:, None, None]) * noise
         # ====== step 4: predict x ======
         x_pred, loss_dict = self.predict_x(z_t, tp, text_embed, t_long)
         # ====== step 5: compute v ======

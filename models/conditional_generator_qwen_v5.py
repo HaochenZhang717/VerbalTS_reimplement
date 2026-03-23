@@ -68,7 +68,6 @@ class ConditionalGeneratorQwenV5(nn.Module):
         x, tp, text_embedding_all_segments, vae_embeds, moment_embeds  = self._unpack_data_cond_gen(batch)
         B, C, T = x.shape
         attr_embed_raw = text_embedding_all_segments
-        B = x.shape[0]
         t_float = torch.sigmoid(self.mu + self.sigma * torch.randn(B).to(self.device)) # lognormal distribution
         t_long = (t_float * (self.generator.num_steps - 1)).long()
         attr_embed = self.cond_projector(attr_embed_raw)
