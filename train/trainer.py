@@ -136,6 +136,7 @@ class Trainer:
                 loss_dict = self.model(train_batch, is_train=True)
 
                 loss_dict["all"].backward()
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
                 self.opt.step()
                 self.update_ema()
 
