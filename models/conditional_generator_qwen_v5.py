@@ -20,6 +20,8 @@ class ConditionalGeneratorQwenV5(nn.Module):
         self.cond_configs = cond_configs
         self._init_condition_encoders(diff_configs, cond_configs)
         self._init_diff(diff_configs)
+        self.mu = -0.8
+        self.sigma = 0.8
 
     def _init_condition_encoders(self, diff_configs, cond_configs):
         if cond_configs["cond_modal"] == "text":
@@ -57,11 +59,9 @@ class ConditionalGeneratorQwenV5(nn.Module):
             print("Learn from scratch")
 
     def build_t_schedule(self, num_steps):
-        mu = -0.8
-        sigma = 0.8
         # 在 logit space 均匀采样
         s = torch.linspace(-3, 3, num_steps, device=self.device)  # 覆盖大部分概率质量
-        t = torch.sigmoid(mu + sigma * s)
+        t = torch.sigmoid(self.mu + self.sigma * s)
         return t
 
     def forward(self, batch, is_train):
@@ -69,7 +69,7 @@ class ConditionalGeneratorQwenV5(nn.Module):
         B, C, T = x.shape
         attr_embed_raw = text_embedding_all_segments
         B = x.shape[0]
-        t_float = torch.sigmoid(-0.8 + 0.8 * torch.random.randn(B).to(self.device)) # lognormal distribution
+        t_float = torch.sigmoid(self.mu + self.sigma * torch.randn(B).to(self.device)) # lognormal distribution
         t_long = (t_float * (self.generator.num_steps - 1)).long()
         attr_embed = self.cond_projector(attr_embed_raw)
         loss = self.generator._xpred_vloss(x, tp, attr_embed, t_float, t_long)
