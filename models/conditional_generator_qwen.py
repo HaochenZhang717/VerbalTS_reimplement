@@ -86,7 +86,12 @@ class ConditionalGeneratorQwen(nn.Module):
             num_cond = int((1 - cfg_uncond_ratio) * B)
             loss_cond = self.generator._noise_estimation_loss(x[:num_cond], tp[:num_cond], attr_embed[:num_cond], t[:num_cond])
             loss_uncond = self.generator._noise_estimation_loss(x[num_cond:], tp[num_cond:], None, t[num_cond:])
-            breakpoint()
+            loss = {}
+            for k in loss_cond.keys():
+                loss[k] = (
+                        (num_cond / B) * loss_cond[k] +
+                        (1 - num_cond / B) * loss_uncond[k]
+                )
             return loss
 
         loss_dict = {}
