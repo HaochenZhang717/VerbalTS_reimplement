@@ -83,7 +83,7 @@ class ConditionalGeneratorQwen(nn.Module):
                 raise NotImplementedError
 
             cfg_uncond_ratio = float(os.getenv("CFG_RATIO", 0.0))
-            num_cond = (1 - cfg_uncond_ratio) * B
+            num_cond = int((1 - cfg_uncond_ratio) * B)
             loss_cond = self.generator._noise_estimation_loss(x[:num_cond], tp[:num_cond], attr_embed[:num_cond], t[:num_cond])
             loss_uncond = self.generator._noise_estimation_loss(x[num_cond:], tp[num_cond:], None, t[num_cond:])
             breakpoint()
