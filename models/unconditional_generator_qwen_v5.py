@@ -29,7 +29,7 @@ class UnConditionalGeneratorQwenV5(nn.Module):
         x_pred, loss_dict = self.predict_x(z_t, tp, text_embed, t_long)
         # ====== step 5: compute v ======
         eps = 1e-5
-        denom = (1 - t_float).clamp(min=eps)
+        denom = (1 - t_float[:, None, None]).clamp(min=eps)
         v_pred = (x_pred - z_t) / denom
         v_target = (x - z_t) / denom
         loss_dict["v_loss"] = ((v_pred - v_target) ** 2).mean()
